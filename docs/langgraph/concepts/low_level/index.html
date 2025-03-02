@@ -1,0 +1,3882 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Build language agents as graphs">
+      
+      
+      
+        <link rel="canonical" href="https://langchain-ai.github.io/langgraph/concepts/low_level/">
+      
+      
+        <link rel="prev" href="../high_level/">
+      
+      
+        <link rel="next" href="../agentic_concepts/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../static/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.44+insiders-4.53.14">
+    
+    
+  
+    <title>LangGraph Glossary</title>
+  
+
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.12320a83.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Public+Sans:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Public Sans";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-G8X6ELZYE0"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-G8X6ELZYE0",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-G8X6ELZYE0",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  
+    <script>if("undefined"!=typeof __md_analytics){var consent=__md_get("__consent");consent&&consent.analytics&&__md_analytics()}</script>
+  
+
+    
+    
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Public+Sans&display=swap");
+    :root {
+      --md-primary-fg-color: #333333;
+      --md-accent-fg-color: #1E88E5;
+      --md-default-bg-color: #FFFFFF;
+      --md-default-fg-color: #333333;
+      --md-text-font-family: "Public Sans", sans-serif;
+    }
+
+    body {
+      font-family: var(--md-text-font-family);
+      background-color: var(--md-default-bg-color);
+      color: var(--md-default-fg-color);
+    }
+
+    .md-main {
+      background-color: #FFFFFF;
+    }
+
+    .md-footer {
+      background-color: #F5F5F5;
+      color: #666666;
+    }
+
+    .md-footer-meta {
+      background-color: #EEEEEE;
+    }
+
+    .md-typeset a {
+      color: #1E88E5;
+    }
+
+    .md-typeset a:hover {
+      color: #1565C0;
+    }
+
+    .md-nav__link--active,
+    .md-nav__link:active {
+      color: #1E88E5;
+    }
+
+    .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    .md-search__input:hover,
+    .md-search__input:focus {
+      background-color: #EEEEEE;
+    }
+    /* Table of contents styles */
+    .md-nav--secondary .md-nav__item--active > .md-nav__link {
+      font-weight: bold;
+      color: var(--md-primary-fg-color);
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link {
+      font-weight: normal;
+      color: var(--md-default-fg-color);
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background-color: var(--md-default-fg-color);
+      border-radius: 50%;
+      margin-right: 0.5rem;
+    }
+
+    [data-md-color-scheme="slate"] {
+      --md-default-bg-color: #1E1E1E;
+      --md-default-fg-color: #FFFFFF;
+      --md-accent-fg-color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-main {
+      background-color: #1E1E1E;
+    }
+
+    [data-md-color-scheme="slate"] .navbar {
+      background-color: #1E1E1E;
+      color: #FFFFFF;
+      box-shadow: none;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-header {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-tabs {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__icon {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input::placeholder {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer-meta {
+      background-color: #1E1E1E;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a {
+      color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a:hover {
+      color: #90CAF9;
+    }
+
+    .notebook-links {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 1rem;
+    }
+    .notebook-links .md-content__button {
+      margin-left: 0.5rem;
+    }
+
+    [data-md-color-scheme=default] .logo-dark {
+      display: none !important;
+    }
+
+    [data-md-color-scheme=slate] .logo-light {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-CodeCell .jp-Cell-inputWrapper .jp-InputPrompt.jp-InputArea-prompt {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-Notebook .jp-Cell .jp-OutputPrompt {
+      display: none !important;
+    }
+
+    .md-banner {
+      background-color: #CFC9FA;
+      color: #000000;
+    }
+
+    .md-banner a {
+      color: #000000;
+      text-decoration: underline;
+    }
+
+    .md-banner a:hover {
+      color: #000000;
+    }
+
+    /* Dark mode banner links */
+    [data-md-color-scheme="slate"] .md-banner a {
+      color: #000000;
+    }
+
+    [data-md-color-scheme="slate"] .md-banner a:hover {
+      color: #000000;
+    }
+
+    /* control the navbar depth */
+    [data-md-level="2"] .md-nav {
+      display: none;
+    }
+
+    /* disable the collapse/expand icon in the navar */
+    .md-nav__icon {
+      display: none;
+    }
+  </style>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="gray">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#langgraph-glossary" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+        <aside class="md-banner">
+          <div class="md-banner__inner md-grid md-typeset">
+            
+              <button class="md-banner__button md-icon" aria-label="Don't show this again">
+                
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+              </button>
+            
+            
+  <b>Join us at <a href="https://interrupt.langchain.com/" target="_blank" rel="noopener noreferrer"> Interrupt: The Agent AI Conference by LangChain</a> on May 13 & 14 in San Francisco!</b>
+
+          </div>
+          
+            <script>var el=document.querySelector("[data-md-component=announce]");if(el){var content=el.querySelector(".md-typeset");__md_hash(content.innerHTML)===__md_get("__announce")&&(el.hidden=!0)}</script>
+          
+        </aside>
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="" class="md-header__button md-logo" aria-label="" data-md-component="logo">
+      
+  <img src="../../static/wordmark_dark.svg" alt="logo" class="logo-light" />
+  <img src="../../static/wordmark_light.svg" alt="logo" class="logo-dark" />
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              LangGraph Glossary
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="gray"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="grey" data-md-color-accent="white"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/langchain-ai/langgraph" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../.." class="md-tabs__link">
+          
+  
+    
+  
+  Home
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/graphs/" class="md-tabs__link">
+          
+  
+    
+  
+  API reference
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="" class="md-nav__button md-logo" aria-label="" data-md-component="logo">
+      
+  <img src="../../static/wordmark_dark.svg" alt="logo" class="logo-light" />
+  <img src="../../static/wordmark_light.svg" alt="logo" class="logo-dark" />
+
+    </a>
+    
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/langchain-ai/langgraph" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../.." class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Home
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_1_2" id="__nav_1_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Get started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Get started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/introduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Learn the basics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../tutorials/deployment/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_1_3" id="__nav_1_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    How-to Guides
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_3_2" checked>
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1_3_2" id="__nav_1_3_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_3_2_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_1_3_2_2" id="__nav_1_3_2_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    LangGraph
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_1_3_2_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1_3_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LangGraph
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts#langgraph" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    LangGraph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../high_level/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Why LangGraph?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    
+  
+    LangGraph Glossary
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    LangGraph Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#graphs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Graphs
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Graphs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stategraph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        StateGraph
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#compiling-your-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compiling your graph
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        State
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="State">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Schema">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#multiple-schemas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multiple schemas
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reducers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reducers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reducers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#default-reducer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Default Reducer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#working-with-messages-in-graph-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Working with Messages in Graph State
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Working with Messages in Graph State">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-use-messages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why use messages?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-messages-in-your-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using Messages in your Graph
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Serialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#messagesstate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MessagesState
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nodes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Nodes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#start-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        START Node
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#end-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        END Node
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#edges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edges
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Edges">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#normal-edges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Normal Edges
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conditional-edges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conditional Edges
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#entry-point" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Entry Point
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conditional-entry-point" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conditional Entry Point
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#send" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Send
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#command" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Command
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Command">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#when-should-i-use-command-instead-of-conditional-edges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When should I use Command instead of conditional edges?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#navigating-to-a-node-in-a-parent-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Navigating to a node in a parent graph
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-inside-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using inside tools
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#human-in-the-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Human-in-the-loop
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#persistence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Persistence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#threads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Threads
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Storage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#graph-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Graph Migrations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#recursion-limit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recursion Limit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interrupt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        interrupt
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#breakpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Breakpoints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#subgraphs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Subgraphs
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Subgraphs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#as-a-compiled-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        As a compiled graph
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#as-a-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        As a function
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visualization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visualization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#streaming" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Streaming
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agentic_concepts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent architectures
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multi_agent/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-agent Systems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../breakpoints" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    None
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../human_in_the_loop/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Human-in-the-loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../time-travel/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Time Travel ⏱️
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../persistence/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Persistence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../memory/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../streaming/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Streaming
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functional_api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Functional API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../durable_execution/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Durable Execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pregel/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    LangGraph's Runtime (Pregel)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../concepts#langgraph-platform" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    LangGraph Platform
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../tutorials/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_1_4" id="__nav_1_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Resources
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Resources
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prebuilt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Prebuilt Agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adopters/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Companies using LangGraph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../faq/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../troubleshooting/errors/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://academy.langchain.com/courses/intro-to-langgraph" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    LangGraph Academy Course
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    
+  
+  
+    <a href="../../reference/graphs/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    API reference
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#graphs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Graphs
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Graphs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stategraph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        StateGraph
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#compiling-your-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compiling your graph
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        State
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="State">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Schema">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#multiple-schemas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multiple schemas
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reducers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reducers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reducers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#default-reducer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Default Reducer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#working-with-messages-in-graph-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Working with Messages in Graph State
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Working with Messages in Graph State">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-use-messages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why use messages?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-messages-in-your-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using Messages in your Graph
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Serialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#messagesstate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MessagesState
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nodes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Nodes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#start-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        START Node
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#end-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        END Node
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#edges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edges
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Edges">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#normal-edges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Normal Edges
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conditional-edges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conditional Edges
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#entry-point" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Entry Point
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conditional-entry-point" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conditional Entry Point
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#send" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Send
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#command" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Command
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Command">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#when-should-i-use-command-instead-of-conditional-edges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When should I use Command instead of conditional edges?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#navigating-to-a-node-in-a-parent-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Navigating to a node in a parent graph
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-inside-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using inside tools
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#human-in-the-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Human-in-the-loop
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#persistence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Persistence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#threads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Threads
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Storage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#graph-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Graph Migrations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#recursion-limit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recursion Limit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interrupt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        interrupt
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#breakpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Breakpoints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#subgraphs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Subgraphs
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Subgraphs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#as-a-compiled-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        As a compiled graph
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#as-a-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        As a function
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visualization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visualization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#streaming" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Streaming
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+      
+        
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../.." class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+    
+    
+      
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../how-tos/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Guides
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Concepts
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../concepts#langgraph" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    LangGraph
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+<div class="notebook-links">
+  
+</div>
+
+
+                  
+
+
+  
+    <a href="https://github.com/langchain-ai/langgraph/edit/main/docs/docs/concepts/low_level.md" title="Edit this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="langgraph-glossary">LangGraph Glossary<a class="headerlink" href="#langgraph-glossary" title="Permanent link">&para;</a></h1>
+<h2 id="graphs">Graphs<a class="headerlink" href="#graphs" title="Permanent link">&para;</a></h2>
+<p>At its core, LangGraph models agent workflows as graphs. You define the behavior of your agents using three key components:</p>
+<ol>
+<li>
+<p><a href="#state"><code>State</code></a>: A shared data structure that represents the current snapshot of your application. It can be any Python type, but is typically a <code>TypedDict</code> or Pydantic <code>BaseModel</code>.</p>
+</li>
+<li>
+<p><a href="#nodes"><code>Nodes</code></a>: Python functions that encode the logic of your agents. They receive the current <code>State</code> as input, perform some computation or side-effect, and return an updated <code>State</code>.</p>
+</li>
+<li>
+<p><a href="#edges"><code>Edges</code></a>: Python functions that determine which <code>Node</code> to execute next based on the current <code>State</code>. They can be conditional branches or fixed transitions.</p>
+</li>
+</ol>
+<p>By composing <code>Nodes</code> and <code>Edges</code>, you can create complex, looping workflows that evolve the <code>State</code> over time. The real power, though, comes from how LangGraph manages that <code>State</code>. To emphasize: <code>Nodes</code> and <code>Edges</code> are nothing more than Python functions - they can contain an LLM or just good ol' Python code.</p>
+<p>In short: <em>nodes do the work. edges tell what to do next</em>.</p>
+<p>LangGraph's underlying graph algorithm uses <a href="https://en.wikipedia.org/wiki/Message_passing">message passing</a> to define a general program. When a Node completes its operation, it sends messages along one or more edges to other node(s). These recipient nodes then execute their functions, pass the resulting messages to the next set of nodes, and the process continues. Inspired by Google's <a href="https://research.google/pubs/pregel-a-system-for-large-scale-graph-processing/">Pregel</a> system, the program proceeds in discrete "super-steps."</p>
+<p>A super-step can be considered a single iteration over the graph nodes. Nodes that run in parallel are part of the same super-step, while nodes that run sequentially belong to separate super-steps. At the start of graph execution, all nodes begin in an <code>inactive</code> state. A node becomes <code>active</code> when it receives a new message (state) on any of its incoming edges (or "channels"). The active node then runs its function and responds with updates. At the end of each super-step, nodes with no incoming messages vote to <code>halt</code> by marking themselves as <code>inactive</code>. The graph execution terminates when all nodes are <code>inactive</code> and no messages are in transit.</p>
+<h3 id="stategraph">StateGraph<a class="headerlink" href="#stategraph" title="Permanent link">&para;</a></h3>
+<p>The <code>StateGraph</code> class is the main graph class to use. This is parameterized by a user defined <code>State</code> object.</p>
+<h3 id="compiling-your-graph">Compiling your graph<a class="headerlink" href="#compiling-your-graph" title="Permanent link">&para;</a></h3>
+<p>To build your graph, you first define the <a href="#state">state</a>, you then add <a href="#nodes">nodes</a> and <a href="#edges">edges</a>, and then you compile it. What exactly is compiling your graph and why is it needed?</p>
+<p>Compiling is a pretty simple step. It provides a few basic checks on the structure of your graph (no orphaned nodes, etc). It is also where you can specify runtime args like <a href="../persistence/">checkpointers</a> and <a href="#breakpoints">breakpoints</a>. You compile your graph by just calling the <code>.compile</code> method:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">graph</span> <span class="o">=</span> <span class="n">graph_builder</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</span></code></pre></div>
+<p>You <strong>MUST</strong> compile your graph before you can use it.</p>
+<h2 id="state">State<a class="headerlink" href="#state" title="Permanent link">&para;</a></h2>
+<p>The first thing you do when you define a graph is define the <code>State</code> of the graph. The <code>State</code> consists of the <a href="#schema">schema of the graph</a> as well as <a href="#reducers"><code>reducer</code> functions</a> which specify how to apply updates to the state. The schema of the <code>State</code> will be the input schema to all <code>Nodes</code> and <code>Edges</code> in the graph, and can be either a <code>TypedDict</code> or a <code>Pydantic</code> model. All <code>Nodes</code> will emit updates to the <code>State</code> which are then applied using the specified <code>reducer</code> function.</p>
+<h3 id="schema">Schema<a class="headerlink" href="#schema" title="Permanent link">&para;</a></h3>
+<p>The main documented way to specify the schema of a graph is by using <code>TypedDict</code>. However, we also support <a href="../../how-tos/state-model/">using a Pydantic BaseModel</a> as your graph state to add <strong>default values</strong> and additional data validation.</p>
+<p>By default, the graph will have the same input and output schemas. If you want to change this, you can also specify explicit input and output schemas directly. This is useful when you have a lot of keys, and some are explicitly for input and others for output. See the <a href="../../how-tos/input_output_schema/">notebook here</a> for how to use.</p>
+<h4 id="multiple-schemas">Multiple schemas<a class="headerlink" href="#multiple-schemas" title="Permanent link">&para;</a></h4>
+<p>Typically, all graph nodes communicate with a single schema. This means that they will read and write to the same state channels. But, there are cases where we want more control over this:</p>
+<ul>
+<li>Internal nodes can pass information that is not required in the graph's input / output.</li>
+<li>We may also want to use different input / output schemas for the graph. The output might, for example, only contain a single relevant output key.</li>
+</ul>
+<p>It is possible to have nodes write to private state channels inside the graph for internal node communication. We can simply define a private schema, <code>PrivateState</code>. See <a href="../../how-tos/pass_private_state/">this notebook</a> for more detail.</p>
+<p>It is also possible to define explicit input and output schemas for a graph. In these cases, we define an "internal" schema that contains <em>all</em> keys relevant to graph operations. But, we also define <code>input</code> and <code>output</code> schemas that are sub-sets of the "internal" schema to constrain the input and output of the graph. See <a href="../../how-tos/input_output_schema/">this notebook</a> for more detail.</p>
+<p>Let's look at an example:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">InputState</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">user_input</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">class</span><span class="w"> </span><span class="nc">OutputState</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">graph_output</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">OverallState</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="n">foo</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="n">user_input</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="n">graph_output</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="k">class</span><span class="w"> </span><span class="nc">PrivateState</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    <span class="n">bar</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="k">def</span><span class="w"> </span><span class="nf">node_1</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">InputState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OverallState</span><span class="p">:</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    <span class="c1"># Write to OverallState</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;user_input&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; name&quot;</span><span class="p">}</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="k">def</span><span class="w"> </span><span class="nf">node_2</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">OverallState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PrivateState</span><span class="p">:</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>    <span class="c1"># Read from OverallState, write to PrivateState</span>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;bar&quot;</span><span class="p">:</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;foo&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; is&quot;</span><span class="p">}</span>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="k">def</span><span class="w"> </span><span class="nf">node_3</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">PrivateState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OutputState</span><span class="p">:</span>
+</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>    <span class="c1"># Read from PrivateState, write to OutputState</span>
+</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;graph_output&quot;</span><span class="p">:</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;bar&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; Lance&quot;</span><span class="p">}</span>
+</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>
+</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="n">builder</span> <span class="o">=</span> <span class="n">StateGraph</span><span class="p">(</span><span class="n">OverallState</span><span class="p">,</span><span class="nb">input</span><span class="o">=</span><span class="n">InputState</span><span class="p">,</span><span class="n">output</span><span class="o">=</span><span class="n">OutputState</span><span class="p">)</span>
+</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;node_1&quot;</span><span class="p">,</span> <span class="n">node_1</span><span class="p">)</span>
+</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;node_2&quot;</span><span class="p">,</span> <span class="n">node_2</span><span class="p">)</span>
+</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;node_3&quot;</span><span class="p">,</span> <span class="n">node_3</span><span class="p">)</span>
+</span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a><span class="n">builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">START</span><span class="p">,</span> <span class="s2">&quot;node_1&quot;</span><span class="p">)</span>
+</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a><span class="n">builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;node_1&quot;</span><span class="p">,</span> <span class="s2">&quot;node_2&quot;</span><span class="p">)</span>
+</span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a><span class="n">builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;node_2&quot;</span><span class="p">,</span> <span class="s2">&quot;node_3&quot;</span><span class="p">)</span>
+</span><span id="__span-1-34"><a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a><span class="n">builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;node_3&quot;</span><span class="p">,</span> <span class="n">END</span><span class="p">)</span>
+</span><span id="__span-1-35"><a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>
+</span><span id="__span-1-36"><a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a><span class="n">graph</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+</span><span id="__span-1-37"><a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a><span class="n">graph</span><span class="o">.</span><span class="n">invoke</span><span class="p">({</span><span class="s2">&quot;user_input&quot;</span><span class="p">:</span><span class="s2">&quot;My&quot;</span><span class="p">})</span>
+</span><span id="__span-1-38"><a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a><span class="p">{</span><span class="s1">&#39;graph_output&#39;</span><span class="p">:</span> <span class="s1">&#39;My name is Lance&#39;</span><span class="p">}</span>
+</span></code></pre></div>
+<p>There are two subtle and important points to note here:</p>
+<ol>
+<li>
+<p>We pass <code>state: InputState</code> as the input schema to <code>node_1</code>. But, we write out to <code>foo</code>, a channel in <code>OverallState</code>. How can we write out to a state channel that is not included in the input schema? This is because a node <em>can write to any state channel in the graph state.</em> The graph state is the union of of the state channels defined at initialization, which includes <code>OverallState</code> and the filters <code>InputState</code> and <code>OutputState</code>.</p>
+</li>
+<li>
+<p>We initialize the graph with <code>StateGraph(OverallState,input=InputState,output=OutputState)</code>. So, how can we write to <code>PrivateState</code> in <code>node_2</code>? How does the graph gain access to this schema if it was not passed in the <code>StateGraph</code> initialization? We can do this because <em>nodes can also declare additional state channels</em> as long as the state schema definition exists. In this case, the <code>PrivateState</code> schema is defined, so we can add <code>bar</code> as a new state channel in the graph and write to it.</p>
+</li>
+</ol>
+<h3 id="reducers">Reducers<a class="headerlink" href="#reducers" title="Permanent link">&para;</a></h3>
+<p>Reducers are key to understanding how updates from nodes are applied to the <code>State</code>. Each key in the <code>State</code> has its own independent reducer function. If no reducer function is explicitly specified then it is assumed that all updates to that key should override it. There are a few different types of reducers, starting with the default type of reducer:</p>
+<h4 id="default-reducer">Default Reducer<a class="headerlink" href="#default-reducer" title="Permanent link">&para;</a></h4>
+<p>These two examples show how to use the default reducer:</p>
+<p><strong>Example A:</strong></p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypedDict</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">class</span><span class="w"> </span><span class="nc">State</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">foo</span><span class="p">:</span> <span class="nb">int</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">bar</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</span></code></pre></div>
+<p>In this example, no reducer functions are specified for any key. Let's assume the input to the graph is <code>{"foo": 1, "bar": ["hi"]}</code>. Let's then assume the first <code>Node</code> returns <code>{"foo": 2}</code>. This is treated as an update to the state. Notice that the <code>Node</code> does not need to return the whole <code>State</code> schema - just an update. After applying this update, the <code>State</code> would then be <code>{"foo": 2, "bar": ["hi"]}</code>. If the second node returns <code>{"bar": ["bye"]}</code> then the <code>State</code> would then be <code>{"foo": 2, "bar": ["bye"]}</code></p>
+<p><strong>Example B:</strong></p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypedDict</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">operator</span><span class="w"> </span><span class="kn">import</span> <span class="n">add</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">class</span><span class="w"> </span><span class="nc">State</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">foo</span><span class="p">:</span> <span class="nb">int</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="n">bar</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">add</span><span class="p">]</span>
+</span></code></pre></div>
+<p>In this example, we've used the <code>Annotated</code> type to specify a reducer function (<code>operator.add</code>) for the second key (<code>bar</code>). Note that the first key remains unchanged. Let's assume the input to the graph is <code>{"foo": 1, "bar": ["hi"]}</code>. Let's then assume the first <code>Node</code> returns <code>{"foo": 2}</code>. This is treated as an update to the state. Notice that the <code>Node</code> does not need to return the whole <code>State</code> schema - just an update. After applying this update, the <code>State</code> would then be <code>{"foo": 2, "bar": ["hi"]}</code>. If the second node returns <code>{"bar": ["bye"]}</code> then the <code>State</code> would then be <code>{"foo": 2, "bar": ["hi", "bye"]}</code>. Notice here that the <code>bar</code> key is updated by adding the two lists together.</p>
+<h3 id="working-with-messages-in-graph-state">Working with Messages in Graph State<a class="headerlink" href="#working-with-messages-in-graph-state" title="Permanent link">&para;</a></h3>
+<h4 id="why-use-messages">Why use messages?<a class="headerlink" href="#why-use-messages" title="Permanent link">&para;</a></h4>
+<p>Most modern LLM providers have a chat model interface that accepts a list of messages as input. LangChain's <a href="https://python.langchain.com/docs/concepts/#chat-models"><code>ChatModel</code></a> in particular accepts a list of <code>Message</code> objects as inputs. These messages come in a variety of forms such as <code>HumanMessage</code> (user input) or <code>AIMessage</code> (LLM response). To read more about what message objects are, please refer to <a href="https://python.langchain.com/docs/concepts/#messages">this</a> conceptual guide.</p>
+<h4 id="using-messages-in-your-graph">Using Messages in your Graph<a class="headerlink" href="#using-messages-in-your-graph" title="Permanent link">&para;</a></h4>
+<p>In many cases, it is helpful to store prior conversation history as a list of messages in your graph state. To do so, we can add a key (channel) to the graph state that stores a list of <code>Message</code> objects and annotate it with a reducer function (see <code>messages</code> key in the example below). The reducer function is vital to telling the graph how to update the list of <code>Message</code> objects in the state with each state update (for example, when a node sends an update). If you don't specify a reducer, every state update will overwrite the list of messages with the most recently provided value. If you wanted to simply append messages to the existing list, you could use <code>operator.add</code> as a reducer.</p>
+<p>However, you might also want to manually update messages in your graph state (e.g. human-in-the-loop). If you were to use <code>operator.add</code>, the manual state updates you send to the graph would be appended to the existing list of messages, instead of updating existing messages. To avoid that, you need a reducer that can keep track of message IDs and overwrite existing messages, if updated. To achieve this, you can use the prebuilt <code>add_messages</code> function. For brand new messages, it will simply append to existing list, but it will also handle the updates for existing messages correctly.</p>
+<h4 id="serialization">Serialization<a class="headerlink" href="#serialization" title="Permanent link">&para;</a></h4>
+<p>In addition to keeping track of message IDs, the <code>add_messages</code> function will also try to deserialize messages into LangChain <code>Message</code> objects whenever a state update is received on the <code>messages</code> channel. See more information on LangChain serialization/deserialization <a href="https://python.langchain.com/docs/how_to/serialization/">here</a>. This allows sending graph inputs / state updates in the following format:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># this is supported</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">HumanMessage</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;message&quot;</span><span class="p">)]}</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># and this is also supported</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;human&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;message&quot;</span><span class="p">}]}</span>
+</span></code></pre></div>
+<p>Since the state updates are always deserialized into LangChain <code>Messages</code> when using <code>add_messages</code>, you should use dot notation to access message attributes, like <code>state["messages"][-1].content</code>. Below is an example of a graph that uses <code>add_messages</code> as it's reducer function.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnyMessage</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.graph.message</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_messages</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypedDict</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="k">class</span><span class="w"> </span><span class="nc">GraphState</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="n">messages</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">AnyMessage</span><span class="p">],</span> <span class="n">add_messages</span><span class="p">]</span>
+</span></code></pre></div>
+<p>API Reference: <a href="https://python.langchain.com/api_reference/core/messages/langchain_core.messages.AnyMessage.html">AnyMessage</a> | <a href="https://langchain-ai.github.io/langgraph/reference/graphs/#langgraph.graph.message.add_messages">add_messages</a></p>
+<h4 id="messagesstate">MessagesState<a class="headerlink" href="#messagesstate" title="Permanent link">&para;</a></h4>
+<p>Since having a list of messages in your state is so common, there exists a prebuilt state called <code>MessagesState</code> which makes it easy to use messages. <code>MessagesState</code> is defined with a single <code>messages</code> key which is a list of <code>AnyMessage</code> objects and uses the <code>add_messages</code> reducer. Typically, there is more state to track than just messages, so we see people subclass this state and add more fields, like:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">MessagesState</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="k">class</span><span class="w"> </span><span class="nc">State</span><span class="p">(</span><span class="n">MessagesState</span><span class="p">):</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">documents</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</span></code></pre></div>
+<h2 id="nodes">Nodes<a class="headerlink" href="#nodes" title="Permanent link">&para;</a></h2>
+<p>In LangGraph, nodes are typically python functions (sync or async) where the <strong>first</strong> positional argument is the <a href="#state">state</a>, and (optionally), the <strong>second</strong> positional argument is a "config", containing optional <a href="#configuration">configurable parameters</a> (such as a <code>thread_id</code>).</p>
+<p>Similar to <code>NetworkX</code>, you add these nodes to a graph using the <a class="autorefs autorefs-internal" href="../../reference/graphs/#langgraph.graph.state.StateGraph.add_node">add_node</a> method:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.runnables</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunnableConfig</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">StateGraph</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">builder</span> <span class="o">=</span> <span class="n">StateGraph</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="k">def</span><span class="w"> </span><span class="nf">my_node</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">RunnableConfig</span><span class="p">):</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;In node: &quot;</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;configurable&quot;</span><span class="p">][</span><span class="s2">&quot;user_id&quot;</span><span class="p">])</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Hello, </span><span class="si">{</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">!&quot;</span><span class="p">}</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="c1"># The second argument is optional</span>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="k">def</span><span class="w"> </span><span class="nf">my_other_node</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>    <span class="k">return</span> <span class="n">state</span>
+</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>
+</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>
+</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;my_node&quot;</span><span class="p">,</span> <span class="n">my_node</span><span class="p">)</span>
+</span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;other_node&quot;</span><span class="p">,</span> <span class="n">my_other_node</span><span class="p">)</span>
+</span><span id="__span-7-19"><a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a><span class="o">...</span>
+</span></code></pre></div>
+<p>API Reference: <a href="https://python.langchain.com/api_reference/core/runnables/langchain_core.runnables.config.RunnableConfig.html">RunnableConfig</a> | <a href="https://langchain-ai.github.io/langgraph/reference/graphs/#langgraph.graph.state.StateGraph">StateGraph</a></p>
+<p>Behind the scenes, functions are converted to <a href="https://api.python.langchain.com/en/latest/runnables/langchain_core.runnables.base.RunnableLambda.html#langchain_core.runnables.base.RunnableLambda">RunnableLambda</a>s, which add batch and async support to your function, along with native tracing and debugging.</p>
+<p>If you add a node to a graph without specifying a name, it will be given a default name equivalent to the function name.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">my_node</span><span class="p">)</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="c1"># You can then create edges to/from this node by referencing it as `&quot;my_node&quot;`</span>
+</span></code></pre></div>
+<h3 id="start-node"><code>START</code> Node<a class="headerlink" href="#start-node" title="Permanent link">&para;</a></h3>
+<p>The <code>START</code> Node is a special node that represents the node that sends user input to the graph. The main purpose for referencing this node is to determine which nodes should be called first.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">START</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">START</span><span class="p">,</span> <span class="s2">&quot;node_a&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+<p>API Reference: <a href="https://langchain-ai.github.io/langgraph/reference/constants/#langgraph.constants.START">START</a></p>
+<h3 id="end-node"><code>END</code> Node<a class="headerlink" href="#end-node" title="Permanent link">&para;</a></h3>
+<p>The <code>END</code> Node is a special node that represents a terminal node. This node is referenced when you want to denote which edges have no actions after they are done.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>from langgraph.graph import END
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>graph.add_edge(&quot;node_a&quot;, END)
+</span></code></pre></div>
+<h2 id="edges">Edges<a class="headerlink" href="#edges" title="Permanent link">&para;</a></h2>
+<p>Edges define how the logic is routed and how the graph decides to stop. This is a big part of how your agents work and how different nodes communicate with each other. There are a few key types of edges:</p>
+<ul>
+<li>Normal Edges: Go directly from one node to the next.</li>
+<li>Conditional Edges: Call a function to determine which node(s) to go to next.</li>
+<li>Entry Point: Which node to call first when user input arrives.</li>
+<li>Conditional Entry Point: Call a function to determine which node(s) to call first when user input arrives.</li>
+</ul>
+<p>A node can have MULTIPLE outgoing edges. If a node has multiple out-going edges, <strong>all</strong> of those destination nodes will be executed in parallel as a part of the next superstep.</p>
+<h3 id="normal-edges">Normal Edges<a class="headerlink" href="#normal-edges" title="Permanent link">&para;</a></h3>
+<p>If you <strong>always</strong> want to go from node A to node B, you can use the <a class="autorefs autorefs-internal" href="../../reference/graphs/#langgraph.graph.state.StateGraph.add_edge">add_edge</a> method directly.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;node_a&quot;</span><span class="p">,</span> <span class="s2">&quot;node_b&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="conditional-edges">Conditional Edges<a class="headerlink" href="#conditional-edges" title="Permanent link">&para;</a></h3>
+<p>If you want to <strong>optionally</strong> route to 1 or more edges (or optionally terminate), you can use the <a class="autorefs autorefs-internal" href="../../reference/graphs/#langgraph.graph.graph.Graph.add_conditional_edges">add_conditional_edges</a> method. This method accepts the name of a node and a "routing function" to call after that node is executed:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">graph</span><span class="o">.</span><span class="n">add_conditional_edges</span><span class="p">(</span><span class="s2">&quot;node_a&quot;</span><span class="p">,</span> <span class="n">routing_function</span><span class="p">)</span>
+</span></code></pre></div>
+<p>Similar to nodes, the <code>routing_function</code> accepts the current <code>state</code> of the graph and returns a value.</p>
+<p>By default, the return value <code>routing_function</code> is used as the name of the node (or list of nodes) to send the state to next. All those nodes will be run in parallel as a part of the next superstep.</p>
+<p>You can optionally provide a dictionary that maps the <code>routing_function</code>'s output to the name of the next node.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">graph</span><span class="o">.</span><span class="n">add_conditional_edges</span><span class="p">(</span><span class="s2">&quot;node_a&quot;</span><span class="p">,</span> <span class="n">routing_function</span><span class="p">,</span> <span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="s2">&quot;node_b&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="s2">&quot;node_c&quot;</span><span class="p">})</span>
+</span></code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Use <a href="#command"><code>Command</code></a> instead of conditional edges if you want to combine state updates and routing in a single function.</p>
+</div>
+<h3 id="entry-point">Entry Point<a class="headerlink" href="#entry-point" title="Permanent link">&para;</a></h3>
+<p>The entry point is the first node(s) that are run when the graph starts. You can use the <a class="autorefs autorefs-internal" href="../../reference/graphs/#langgraph.graph.state.StateGraph.add_edge"><code>add_edge</code></a> method from the virtual <a class="autorefs autorefs-internal" href="../../reference/constants/#langgraph.constants.START"><code>START</code></a> node to the first node to execute to specify where to enter the graph.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">START</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">START</span><span class="p">,</span> <span class="s2">&quot;node_a&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+<p>API Reference: <a href="https://langchain-ai.github.io/langgraph/reference/constants/#langgraph.constants.START">START</a></p>
+<h3 id="conditional-entry-point">Conditional Entry Point<a class="headerlink" href="#conditional-entry-point" title="Permanent link">&para;</a></h3>
+<p>A conditional entry point lets you start at different nodes depending on custom logic. You can use <a class="autorefs autorefs-internal" href="../../reference/graphs/#langgraph.graph.graph.Graph.add_conditional_edges"><code>add_conditional_edges</code></a> from the virtual <a class="autorefs autorefs-internal" href="../../reference/constants/#langgraph.constants.START"><code>START</code></a> node to accomplish this.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">START</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="n">graph</span><span class="o">.</span><span class="n">add_conditional_edges</span><span class="p">(</span><span class="n">START</span><span class="p">,</span> <span class="n">routing_function</span><span class="p">)</span>
+</span></code></pre></div>
+<p>API Reference: <a href="https://langchain-ai.github.io/langgraph/reference/constants/#langgraph.constants.START">START</a></p>
+<p>You can optionally provide a dictionary that maps the <code>routing_function</code>'s output to the name of the next node.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="n">graph</span><span class="o">.</span><span class="n">add_conditional_edges</span><span class="p">(</span><span class="n">START</span><span class="p">,</span> <span class="n">routing_function</span><span class="p">,</span> <span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="s2">&quot;node_b&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="s2">&quot;node_c&quot;</span><span class="p">})</span>
+</span></code></pre></div>
+<h2 id="send"><code>Send</code><a class="headerlink" href="#send" title="Permanent link">&para;</a></h2>
+<p>By default, <code>Nodes</code> and <code>Edges</code> are defined ahead of time and operate on the same shared state. However, there can be cases where the exact edges are not known ahead of time and/or you may want different versions of <code>State</code> to exist at the same time. A common example of this is with <a href="https://langchain-ai.github.io/langgraph/how-tos/map-reduce/">map-reduce</a> design patterns. In this design pattern, a first node may generate a list of objects, and you may want to apply some other node to all those objects. The number of objects may be unknown ahead of time (meaning the number of edges may not be known) and the input <code>State</code> to the downstream <code>Node</code> should be different (one for each generated object).</p>
+<p>To support this design pattern, LangGraph supports returning <a class="autorefs autorefs-internal" href="../../reference/types/#langgraph.types.Send"><code>Send</code></a> objects from conditional edges. <code>Send</code> takes two arguments: first is the name of the node, and second is the state to pass to that node.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">continue_to_jokes</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">OverallState</span><span class="p">):</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>    <span class="k">return</span> <span class="p">[</span><span class="n">Send</span><span class="p">(</span><span class="s2">&quot;generate_joke&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;subject&quot;</span><span class="p">:</span> <span class="n">s</span><span class="p">})</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;subjects&#39;</span><span class="p">]]</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="n">graph</span><span class="o">.</span><span class="n">add_conditional_edges</span><span class="p">(</span><span class="s2">&quot;node_a&quot;</span><span class="p">,</span> <span class="n">continue_to_jokes</span><span class="p">)</span>
+</span></code></pre></div>
+<h2 id="command"><code>Command</code><a class="headerlink" href="#command" title="Permanent link">&para;</a></h2>
+<p>It can be useful to combine control flow (edges) and state updates (nodes). For example, you might want to BOTH perform state updates AND decide which node to go to next in the SAME node. LangGraph provides a way to do so by returning a <a class="autorefs autorefs-internal" href="../../reference/types/#langgraph.types.Command"><code>Command</code></a> object from node functions:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">my_node</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">State</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Command</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;my_other_node&quot;</span><span class="p">]]:</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>    <span class="k">return</span> <span class="n">Command</span><span class="p">(</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>        <span class="c1"># state update</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>        <span class="n">update</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="s2">&quot;bar&quot;</span><span class="p">},</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>        <span class="c1"># control flow</span>
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>        <span class="n">goto</span><span class="o">=</span><span class="s2">&quot;my_other_node&quot;</span>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>    <span class="p">)</span>
+</span></code></pre></div>
+<p>With <code>Command</code> you can also achieve dynamic control flow behavior (identical to <a href="#conditional-edges">conditional edges</a>):</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">my_node</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">State</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Command</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;my_other_node&quot;</span><span class="p">]]:</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>    <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;foo&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;bar&quot;</span><span class="p">:</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>        <span class="k">return</span> <span class="n">Command</span><span class="p">(</span><span class="n">update</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="s2">&quot;baz&quot;</span><span class="p">},</span> <span class="n">goto</span><span class="o">=</span><span class="s2">&quot;my_other_node&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>When returning <code>Command</code> in your node functions, you must add return type annotations with the list of node names the node is routing to, e.g. <code>Command[Literal["my_other_node"]]</code>. This is necessary for the graph rendering and tells LangGraph that <code>my_node</code> can navigate to <code>my_other_node</code>.</p>
+</div>
+<p>Check out this <a href="../../how-tos/command/">how-to guide</a> for an end-to-end example of how to use <code>Command</code>.</p>
+<h3 id="when-should-i-use-command-instead-of-conditional-edges">When should I use Command instead of conditional edges?<a class="headerlink" href="#when-should-i-use-command-instead-of-conditional-edges" title="Permanent link">&para;</a></h3>
+<p>Use <code>Command</code> when you need to <strong>both</strong> update the graph state <strong>and</strong> route to a different node. For example, when implementing <a href="../multi_agent/#handoffs">multi-agent handoffs</a> where it's important to route to a different agent and pass some information to that agent.</p>
+<p>Use <a href="#conditional-edges">conditional edges</a> to route between nodes conditionally without updating the state.</p>
+<h3 id="navigating-to-a-node-in-a-parent-graph">Navigating to a node in a parent graph<a class="headerlink" href="#navigating-to-a-node-in-a-parent-graph" title="Permanent link">&para;</a></h3>
+<p>If you are using <a href="#subgraphs">subgraphs</a>, you might want to navigate from a node within a subgraph to a different subgraph (i.e. a different node in the parent graph). To do so, you can specify <code>graph=Command.PARENT</code> in <code>Command</code>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">my_node</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">State</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Command</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;my_other_node&quot;</span><span class="p">]]:</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>    <span class="k">return</span> <span class="n">Command</span><span class="p">(</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>        <span class="n">update</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="s2">&quot;bar&quot;</span><span class="p">},</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>        <span class="n">goto</span><span class="o">=</span><span class="s2">&quot;other_subgraph&quot;</span><span class="p">,</span>  <span class="c1"># where `other_subgraph` is a node in the parent graph</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>        <span class="n">graph</span><span class="o">=</span><span class="n">Command</span><span class="o">.</span><span class="n">PARENT</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>    <span class="p">)</span>
+</span></code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Setting <code>graph</code> to <code>Command.PARENT</code> will navigate to the closest parent graph.</p>
+</div>
+<div class="admonition important">
+<p class="admonition-title">State updates with <code>Command.PARENT</code></p>
+<p>When you send updates from a subgraph node to a parent graph node for a key that's shared by both parent and subgraph <a href="#schema">state schemas</a>, you <strong>must</strong> define a <a href="#reducers">reducer</a> for the key you're updating in the parent graph state. See this <a href="../../how-tos/command/#navigating-to-a-node-in-a-parent-graph">example</a>.</p>
+</div>
+<p>This is particularly useful when implementing <a href="../multi_agent/#handoffs">multi-agent handoffs</a>.</p>
+<h3 id="using-inside-tools">Using inside tools<a class="headerlink" href="#using-inside-tools" title="Permanent link">&para;</a></h3>
+<p>A common use case is updating graph state from inside a tool. For example, in a customer support application you might want to look up customer information based on their account number or ID in the beginning of the conversation. To update the graph state from the tool, you can return <code>Command(update={"my_custom_key": "foo", "messages": [...]})</code> from the tool:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="nd">@tool</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">lookup_user_info</span><span class="p">(</span><span class="n">tool_call_id</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">InjectedToolCallId</span><span class="p">],</span> <span class="n">config</span><span class="p">:</span> <span class="n">RunnableConfig</span><span class="p">):</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Use this to look up user information to better assist them with their questions.&quot;&quot;&quot;</span>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>    <span class="n">user_info</span> <span class="o">=</span> <span class="n">get_user_info</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;configurable&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user_id&quot;</span><span class="p">))</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>    <span class="k">return</span> <span class="n">Command</span><span class="p">(</span>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>        <span class="n">update</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>            <span class="c1"># update the state keys</span>
+</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>            <span class="s2">&quot;user_info&quot;</span><span class="p">:</span> <span class="n">user_info</span><span class="p">,</span>
+</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>            <span class="c1"># update the message history</span>
+</span><span id="__span-21-10"><a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>            <span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">ToolMessage</span><span class="p">(</span><span class="s2">&quot;Successfully looked up user information&quot;</span><span class="p">,</span> <span class="n">tool_call_id</span><span class="o">=</span><span class="n">tool_call_id</span><span class="p">)]</span>
+</span><span id="__span-21-11"><a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a>        <span class="p">}</span>
+</span><span id="__span-21-12"><a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a>    <span class="p">)</span>
+</span></code></pre></div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>You MUST include <code>messages</code> (or any state key used for the message history) in <code>Command.update</code> when returning <code>Command</code> from a tool and the list of messages in <code>messages</code> MUST contain a <code>ToolMessage</code>. This is necessary for the resulting message history to be valid (LLM providers require AI messages with tool calls to be followed by the tool result messages).</p>
+</div>
+<p>If you are using tools that update state via <code>Command</code>, we recommend using prebuilt <a class="autorefs autorefs-internal" href="../../reference/prebuilt/#langgraph.prebuilt.tool_node.ToolNode"><code>ToolNode</code></a> which automatically handles tools returning <code>Command</code> objects and propagates them to the graph state. If you're writing a custom node that calls tools, you would need to manually propagate <code>Command</code> objects returned by the tools as the update from the node.</p>
+<h3 id="human-in-the-loop">Human-in-the-loop<a class="headerlink" href="#human-in-the-loop" title="Permanent link">&para;</a></h3>
+<p><code>Command</code> is an important part of human-in-the-loop workflows: when using <code>interrupt()</code> to collect user input, <code>Command</code> is then used to supply the input and resume execution via <code>Command(resume="User input")</code>. Check out <a href="../human_in_the_loop/">this conceptual guide</a> for more information.</p>
+<h2 id="persistence">Persistence<a class="headerlink" href="#persistence" title="Permanent link">&para;</a></h2>
+<p>LangGraph provides built-in persistence for your agent's state using <a class="autorefs autorefs-internal" href="../../reference/checkpoints/#langgraph.checkpoint.base.BaseCheckpointSaver">checkpointers</a>. Checkpointers save snapshots of the graph state at every superstep, allowing resumption at any time. This enables features like human-in-the-loop interactions, memory management, and fault-tolerance. You can even directly manipulate a graph's state after its execution using the
+appropriate <code>get</code> and <code>update</code> methods. For more details, see the <a href="../persistence/">persistence conceptual guide</a>.</p>
+<h2 id="threads">Threads<a class="headerlink" href="#threads" title="Permanent link">&para;</a></h2>
+<p>Threads in LangGraph represent individual sessions or conversations between your graph and a user. When using checkpointing, turns in a single conversation (and even steps within a single graph execution) are organized by a unique thread ID.</p>
+<h2 id="storage">Storage<a class="headerlink" href="#storage" title="Permanent link">&para;</a></h2>
+<p>LangGraph provides built-in document storage through the <a class="autorefs autorefs-internal" href="../../reference/store/#langgraph.store.base.BaseStore">BaseStore</a> interface. Unlike checkpointers, which save state by thread ID, stores use custom namespaces for organizing data. This enables cross-thread persistence, allowing agents to maintain long-term memories, learn from past interactions, and accumulate knowledge over time. Common use cases include storing user profiles, building knowledge bases, and managing global preferences across all threads.</p>
+<h2 id="graph-migrations">Graph Migrations<a class="headerlink" href="#graph-migrations" title="Permanent link">&para;</a></h2>
+<p>LangGraph can easily handle migrations of graph definitions (nodes, edges, and state) even when using a checkpointer to track state.</p>
+<ul>
+<li>For threads at the end of the graph (i.e. not interrupted) you can change the entire topology of the graph (i.e. all nodes and edges, remove, add, rename, etc)</li>
+<li>For threads currently interrupted, we support all topology changes other than renaming / removing nodes (as that thread could now be about to enter a node that no longer exists) -- if this is a blocker please reach out and we can prioritize a solution.</li>
+<li>For modifying state, we have full backwards and forwards compatibility for adding and removing keys</li>
+<li>State keys that are renamed lose their saved state in existing threads</li>
+<li>State keys whose types change in incompatible ways could currently cause issues in threads with state from before the change -- if this is a blocker please reach out and we can prioritize a solution.</li>
+</ul>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
+<p>When creating a graph, you can also mark that certain parts of the graph are configurable. This is commonly done to enable easily switching between models or system prompts. This allows you to create a single "cognitive architecture" (the graph) but have multiple different instance of it.</p>
+<p>You can optionally specify a <code>config_schema</code> when creating a graph.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ConfigSchema</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>    <span class="n">llm</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="n">graph</span> <span class="o">=</span> <span class="n">StateGraph</span><span class="p">(</span><span class="n">State</span><span class="p">,</span> <span class="n">config_schema</span><span class="o">=</span><span class="n">ConfigSchema</span><span class="p">)</span>
+</span></code></pre></div>
+<p>You can then pass this configuration into the graph using the <code>configurable</code> config field.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;configurable&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;llm&quot;</span><span class="p">:</span> <span class="s2">&quot;anthropic&quot;</span><span class="p">}}</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="n">graph</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+</span></code></pre></div>
+<p>You can then access and use this configuration inside a node:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">node_a</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>    <span class="n">llm_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;configurable&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;llm&quot;</span><span class="p">,</span> <span class="s2">&quot;openai&quot;</span><span class="p">)</span>
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>    <span class="n">llm</span> <span class="o">=</span> <span class="n">get_llm</span><span class="p">(</span><span class="n">llm_type</span><span class="p">)</span>
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>    <span class="o">...</span>
+</span></code></pre></div>
+<p>See <a href="../../how-tos/configuration/">this guide</a> for a full breakdown on configuration.</p>
+<h3 id="recursion-limit">Recursion Limit<a class="headerlink" href="#recursion-limit" title="Permanent link">&para;</a></h3>
+<p>The recursion limit sets the maximum number of <a href="#graphs">super-steps</a> the graph can execute during a single execution. Once the limit is reached, LangGraph will raise <code>GraphRecursionError</code>. By default this value is set to 25 steps. The recursion limit can be set on any graph at runtime, and is passed to <code>.invoke</code>/<code>.stream</code> via the config dictionary. Importantly, <code>recursion_limit</code> is a standalone <code>config</code> key and should not be passed inside the <code>configurable</code> key as all other user-defined configuration. See the example below:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="n">graph</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;recursion_limit&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;configurable&quot;</span><span class="p">:{</span><span class="s2">&quot;llm&quot;</span><span class="p">:</span> <span class="s2">&quot;anthropic&quot;</span><span class="p">}})</span>
+</span></code></pre></div>
+<p>Read <a href="https://langchain-ai.github.io/langgraph/how-tos/recursion-limit/">this how-to</a> to learn more about how the recursion limit works.</p>
+<h2 id="interrupt"><code>interrupt</code><a class="headerlink" href="#interrupt" title="Permanent link">&para;</a></h2>
+<p>Use the <a href="../../reference/types/#langgraph.types.interrupt">interrupt</a> function to <strong>pause</strong> the graph at specific points to collect user input. The <code>interrupt</code> function surfaces interrupt information to the client, allowing the developer to collect user input, validate the graph state, or make decisions before resuming execution.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">interrupt</span>
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">human_approval_node</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">State</span><span class="p">):</span>
+</span><span id="__span-26-4"><a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>    <span class="o">...</span>
+</span><span id="__span-26-5"><a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>    <span class="n">answer</span> <span class="o">=</span> <span class="n">interrupt</span><span class="p">(</span>
+</span><span id="__span-26-6"><a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a>        <span class="c1"># This value will be sent to the client.</span>
+</span><span id="__span-26-7"><a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a>        <span class="c1"># It can be any JSON serializable value.</span>
+</span><span id="__span-26-8"><a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a>        <span class="p">{</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="s2">&quot;is it ok to continue?&quot;</span><span class="p">},</span>
+</span><span id="__span-26-9"><a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a>    <span class="p">)</span>
+</span><span id="__span-26-10"><a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a>    <span class="o">...</span>
+</span></code></pre></div>
+<p>API Reference: <a href="https://langchain-ai.github.io/langgraph/reference/types/#langgraph.types.interrupt">interrupt</a></p>
+<p>Resuming the graph is done by passing a <a href="#command"><code>Command</code></a> object to the graph with the <code>resume</code> key set to the value returned by the <code>interrupt</code> function.</p>
+<p>Read more about how the <code>interrupt</code> is used for <strong>human-in-the-loop</strong> workflows in the <a href="../human_in_the_loop/">Human-in-the-loop conceptual guide</a>.</p>
+<h2 id="breakpoints">Breakpoints<a class="headerlink" href="#breakpoints" title="Permanent link">&para;</a></h2>
+<p>Breakpoints pause graph execution at specific points and enable stepping through execution step by step. Breakpoints are powered by LangGraph's <a href="../persistence/"><strong>persistence layer</strong></a>, which saves the state after each graph step. Breakpoints can also be used to enable <a href="../human_in_the_loop/"><strong>human-in-the-loop</strong></a> workflows, though we recommend using the <a href="#interrupt"><code>interrupt</code> function</a> for this purpose.</p>
+<p>Read more about breakpoints in the <a href="../breakpoints/">Breakpoints conceptual guide</a>.</p>
+<h2 id="subgraphs">Subgraphs<a class="headerlink" href="#subgraphs" title="Permanent link">&para;</a></h2>
+<p>A subgraph is a <a href="#graphs">graph</a> that is used as a <a href="#nodes">node</a> in another graph. This is nothing more than the age-old concept of encapsulation, applied to LangGraph. Some reasons for using subgraphs are:</p>
+<ul>
+<li>
+<p>building <a href="../multi_agent/">multi-agent systems</a></p>
+</li>
+<li>
+<p>when you want to reuse a set of nodes in multiple graphs, which maybe share some state, you can define them once in a subgraph and then use them in multiple parent graphs</p>
+</li>
+<li>
+<p>when you want different teams to work on different parts of the graph independently, you can define each part as a subgraph, and as long as the subgraph interface (the input and output schemas) is respected, the parent graph can be built without knowing any details of the subgraph</p>
+</li>
+</ul>
+<p>There are two ways to add subgraphs to a parent graph:</p>
+<ul>
+<li>add a node with the compiled subgraph: this is useful when the parent graph and the subgraph share state keys and you don't need to transform state on the way in or out</li>
+</ul>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;subgraph&quot;</span><span class="p">,</span> <span class="n">subgraph_builder</span><span class="o">.</span><span class="n">compile</span><span class="p">())</span>
+</span></code></pre></div>
+<ul>
+<li>add a node with a function that invokes the subgraph: this is useful when the parent graph and the subgraph have different state schemas and you need to transform state before or after calling the subgraph</li>
+</ul>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="n">subgraph</span> <span class="o">=</span> <span class="n">subgraph_builder</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+</span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>
+</span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">call_subgraph</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">State</span><span class="p">):</span>
+</span><span id="__span-28-4"><a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a>    <span class="k">return</span> <span class="n">subgraph</span><span class="o">.</span><span class="n">invoke</span><span class="p">({</span><span class="s2">&quot;subgraph_key&quot;</span><span class="p">:</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;parent_key&quot;</span><span class="p">]})</span>
+</span><span id="__span-28-5"><a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a>
+</span><span id="__span-28-6"><a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a><span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;subgraph&quot;</span><span class="p">,</span> <span class="n">call_subgraph</span><span class="p">)</span>
+</span></code></pre></div>
+<p>Let's take a look at examples for each.</p>
+<h3 id="as-a-compiled-graph">As a compiled graph<a class="headerlink" href="#as-a-compiled-graph" title="Permanent link">&para;</a></h3>
+<p>The simplest way to create subgraph nodes is by using a <a href="#compiling-your-graph">compiled subgraph</a> directly. When doing so, it is <strong>important</strong> that the parent graph and the subgraph <a href="#state">state schemas</a> share at least one key which they can use to communicate. If your graph and subgraph do not share any keys, you should write a function <a href="#as-a-function">invoking the subgraph</a> instead.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you pass extra keys to the subgraph node (i.e., in addition to the shared keys), they will be ignored by the subgraph node. Similarly, if you return extra keys from the subgraph, they will be ignored by the parent graph.</p>
+</div>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">StateGraph</span>
+</span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypedDict</span>
+</span><span id="__span-29-3"><a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>
+</span><span id="__span-29-4"><a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a><span class="k">class</span><span class="w"> </span><span class="nc">State</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+</span><span id="__span-29-5"><a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a>    <span class="n">foo</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="__span-29-6"><a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a>
+</span><span id="__span-29-7"><a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">SubgraphState</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+</span><span id="__span-29-8"><a id="__codelineno-29-8" name="__codelineno-29-8" href="#__codelineno-29-8"></a>    <span class="n">foo</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># note that this key is shared with the parent graph state</span>
+</span><span id="__span-29-9"><a id="__codelineno-29-9" name="__codelineno-29-9" href="#__codelineno-29-9"></a>    <span class="n">bar</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="__span-29-10"><a id="__codelineno-29-10" name="__codelineno-29-10" href="#__codelineno-29-10"></a>
+</span><span id="__span-29-11"><a id="__codelineno-29-11" name="__codelineno-29-11" href="#__codelineno-29-11"></a><span class="c1"># Define subgraph</span>
+</span><span id="__span-29-12"><a id="__codelineno-29-12" name="__codelineno-29-12" href="#__codelineno-29-12"></a><span class="k">def</span><span class="w"> </span><span class="nf">subgraph_node</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">SubgraphState</span><span class="p">):</span>
+</span><span id="__span-29-13"><a id="__codelineno-29-13" name="__codelineno-29-13" href="#__codelineno-29-13"></a>    <span class="c1"># note that this subgraph node can communicate with the parent graph via the shared &quot;foo&quot; key</span>
+</span><span id="__span-29-14"><a id="__codelineno-29-14" name="__codelineno-29-14" href="#__codelineno-29-14"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;foo&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;bar&quot;</span><span class="p">}</span>
+</span><span id="__span-29-15"><a id="__codelineno-29-15" name="__codelineno-29-15" href="#__codelineno-29-15"></a>
+</span><span id="__span-29-16"><a id="__codelineno-29-16" name="__codelineno-29-16" href="#__codelineno-29-16"></a><span class="n">subgraph_builder</span> <span class="o">=</span> <span class="n">StateGraph</span><span class="p">(</span><span class="n">SubgraphState</span><span class="p">)</span>
+</span><span id="__span-29-17"><a id="__codelineno-29-17" name="__codelineno-29-17" href="#__codelineno-29-17"></a><span class="n">subgraph_builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">subgraph_node</span><span class="p">)</span>
+</span><span id="__span-29-18"><a id="__codelineno-29-18" name="__codelineno-29-18" href="#__codelineno-29-18"></a><span class="o">...</span>
+</span><span id="__span-29-19"><a id="__codelineno-29-19" name="__codelineno-29-19" href="#__codelineno-29-19"></a><span class="n">subgraph</span> <span class="o">=</span> <span class="n">subgraph_builder</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+</span><span id="__span-29-20"><a id="__codelineno-29-20" name="__codelineno-29-20" href="#__codelineno-29-20"></a>
+</span><span id="__span-29-21"><a id="__codelineno-29-21" name="__codelineno-29-21" href="#__codelineno-29-21"></a><span class="c1"># Define parent graph</span>
+</span><span id="__span-29-22"><a id="__codelineno-29-22" name="__codelineno-29-22" href="#__codelineno-29-22"></a><span class="n">builder</span> <span class="o">=</span> <span class="n">StateGraph</span><span class="p">(</span><span class="n">State</span><span class="p">)</span>
+</span><span id="__span-29-23"><a id="__codelineno-29-23" name="__codelineno-29-23" href="#__codelineno-29-23"></a><span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;subgraph&quot;</span><span class="p">,</span> <span class="n">subgraph</span><span class="p">)</span>
+</span><span id="__span-29-24"><a id="__codelineno-29-24" name="__codelineno-29-24" href="#__codelineno-29-24"></a><span class="o">...</span>
+</span><span id="__span-29-25"><a id="__codelineno-29-25" name="__codelineno-29-25" href="#__codelineno-29-25"></a><span class="n">graph</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+</span></code></pre></div>
+<p>API Reference: <a href="https://langchain-ai.github.io/langgraph/reference/graphs/#langgraph.graph.state.StateGraph">StateGraph</a></p>
+<h3 id="as-a-function">As a function<a class="headerlink" href="#as-a-function" title="Permanent link">&para;</a></h3>
+<p>You might want to define a subgraph with a completely different schema. In this case, you can create a node function that invokes the subgraph. This function will need to <a href="../../how-tos/subgraph-transform-state/">transform</a> the input (parent) state to the subgraph state before invoking the subgraph, and transform the results back to the parent state before returning the state update from the node.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">State</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+</span><span id="__span-30-2"><a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>    <span class="n">foo</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="__span-30-3"><a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>
+</span><span id="__span-30-4"><a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a><span class="k">class</span><span class="w"> </span><span class="nc">SubgraphState</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+</span><span id="__span-30-5"><a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a>    <span class="c1"># note that none of these keys are shared with the parent graph state</span>
+</span><span id="__span-30-6"><a id="__codelineno-30-6" name="__codelineno-30-6" href="#__codelineno-30-6"></a>    <span class="n">bar</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="__span-30-7"><a id="__codelineno-30-7" name="__codelineno-30-7" href="#__codelineno-30-7"></a>    <span class="n">baz</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="__span-30-8"><a id="__codelineno-30-8" name="__codelineno-30-8" href="#__codelineno-30-8"></a>
+</span><span id="__span-30-9"><a id="__codelineno-30-9" name="__codelineno-30-9" href="#__codelineno-30-9"></a><span class="c1"># Define subgraph</span>
+</span><span id="__span-30-10"><a id="__codelineno-30-10" name="__codelineno-30-10" href="#__codelineno-30-10"></a><span class="k">def</span><span class="w"> </span><span class="nf">subgraph_node</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">SubgraphState</span><span class="p">):</span>
+</span><span id="__span-30-11"><a id="__codelineno-30-11" name="__codelineno-30-11" href="#__codelineno-30-11"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;bar&quot;</span><span class="p">:</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;bar&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;baz&quot;</span><span class="p">}</span>
+</span><span id="__span-30-12"><a id="__codelineno-30-12" name="__codelineno-30-12" href="#__codelineno-30-12"></a>
+</span><span id="__span-30-13"><a id="__codelineno-30-13" name="__codelineno-30-13" href="#__codelineno-30-13"></a><span class="n">subgraph_builder</span> <span class="o">=</span> <span class="n">StateGraph</span><span class="p">(</span><span class="n">SubgraphState</span><span class="p">)</span>
+</span><span id="__span-30-14"><a id="__codelineno-30-14" name="__codelineno-30-14" href="#__codelineno-30-14"></a><span class="n">subgraph_builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">subgraph_node</span><span class="p">)</span>
+</span><span id="__span-30-15"><a id="__codelineno-30-15" name="__codelineno-30-15" href="#__codelineno-30-15"></a><span class="o">...</span>
+</span><span id="__span-30-16"><a id="__codelineno-30-16" name="__codelineno-30-16" href="#__codelineno-30-16"></a><span class="n">subgraph</span> <span class="o">=</span> <span class="n">subgraph_builder</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+</span><span id="__span-30-17"><a id="__codelineno-30-17" name="__codelineno-30-17" href="#__codelineno-30-17"></a>
+</span><span id="__span-30-18"><a id="__codelineno-30-18" name="__codelineno-30-18" href="#__codelineno-30-18"></a><span class="c1"># Define parent graph</span>
+</span><span id="__span-30-19"><a id="__codelineno-30-19" name="__codelineno-30-19" href="#__codelineno-30-19"></a><span class="k">def</span><span class="w"> </span><span class="nf">node</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">State</span><span class="p">):</span>
+</span><span id="__span-30-20"><a id="__codelineno-30-20" name="__codelineno-30-20" href="#__codelineno-30-20"></a>    <span class="c1"># transform the state to the subgraph state</span>
+</span><span id="__span-30-21"><a id="__codelineno-30-21" name="__codelineno-30-21" href="#__codelineno-30-21"></a>    <span class="n">response</span> <span class="o">=</span> <span class="n">subgraph</span><span class="o">.</span><span class="n">invoke</span><span class="p">({</span><span class="s2">&quot;bar&quot;</span><span class="p">:</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;foo&quot;</span><span class="p">]})</span>
+</span><span id="__span-30-22"><a id="__codelineno-30-22" name="__codelineno-30-22" href="#__codelineno-30-22"></a>    <span class="c1"># transform response back to the parent state</span>
+</span><span id="__span-30-23"><a id="__codelineno-30-23" name="__codelineno-30-23" href="#__codelineno-30-23"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="n">response</span><span class="p">[</span><span class="s2">&quot;bar&quot;</span><span class="p">]}</span>
+</span><span id="__span-30-24"><a id="__codelineno-30-24" name="__codelineno-30-24" href="#__codelineno-30-24"></a>
+</span><span id="__span-30-25"><a id="__codelineno-30-25" name="__codelineno-30-25" href="#__codelineno-30-25"></a><span class="n">builder</span> <span class="o">=</span> <span class="n">StateGraph</span><span class="p">(</span><span class="n">State</span><span class="p">)</span>
+</span><span id="__span-30-26"><a id="__codelineno-30-26" name="__codelineno-30-26" href="#__codelineno-30-26"></a><span class="c1"># note that we are using `node` function instead of a compiled subgraph</span>
+</span><span id="__span-30-27"><a id="__codelineno-30-27" name="__codelineno-30-27" href="#__codelineno-30-27"></a><span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+</span><span id="__span-30-28"><a id="__codelineno-30-28" name="__codelineno-30-28" href="#__codelineno-30-28"></a><span class="o">...</span>
+</span><span id="__span-30-29"><a id="__codelineno-30-29" name="__codelineno-30-29" href="#__codelineno-30-29"></a><span class="n">graph</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+</span></code></pre></div>
+<h2 id="visualization">Visualization<a class="headerlink" href="#visualization" title="Permanent link">&para;</a></h2>
+<p>It's often nice to be able to visualize graphs, especially as they get more complex. LangGraph comes with several built-in ways to visualize graphs. See <a href="../../how-tos/visualization/">this how-to guide</a> for more info.</p>
+<h2 id="streaming">Streaming<a class="headerlink" href="#streaming" title="Permanent link">&para;</a></h2>
+<p>LangGraph is built with first class support for streaming, including streaming updates from graph nodes during the execution, streaming tokens from LLM calls and more. See this <a href="../streaming/">conceptual guide</a> for more information.</p>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  <form class="md-feedback" name="feedback" hidden>
+    <fieldset>
+      <legend class="md-feedback__title">
+        Was this page helpful?
+      </legend>
+      <div class="md-feedback__inner">
+        <div class="md-feedback__list">
+          
+            <button class="md-feedback__icon md-icon" type="submit" title="This page was helpful" data-md-value="1">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 0-8-8 8 8 0 0 0-8 8 8 8 0 0 0 8 8 8 8 0 0 0 8-8m2 0a10 10 0 0 1-10 10A10 10 0 0 1 2 12 10 10 0 0 1 12 2a10 10 0 0 1 10 10M10 9.5c0 .8-.7 1.5-1.5 1.5S7 10.3 7 9.5 7.7 8 8.5 8s1.5.7 1.5 1.5m7 0c0 .8-.7 1.5-1.5 1.5S14 10.3 14 9.5 14.7 8 15.5 8s1.5.7 1.5 1.5m-5 7.73c-1.75 0-3.29-.73-4.19-1.81L9.23 14c.45.72 1.52 1.23 2.77 1.23s2.32-.51 2.77-1.23l1.42 1.42c-.9 1.08-2.44 1.81-4.19 1.81"/></svg>
+            </button>
+          
+            <button class="md-feedback__icon md-icon" type="submit" title="This page could be improved" data-md-value="0">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 0-8-8 8 8 0 0 0-8 8 8 8 0 0 0 8 8 8 8 0 0 0 8-8m2 0a10 10 0 0 1-10 10A10 10 0 0 1 2 12 10 10 0 0 1 12 2a10 10 0 0 1 10 10m-6.5-4c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5-1.5-.7-1.5-1.5.7-1.5 1.5-1.5M10 9.5c0 .8-.7 1.5-1.5 1.5S7 10.3 7 9.5 7.7 8 8.5 8s1.5.7 1.5 1.5m2 4.5c1.75 0 3.29.72 4.19 1.81l-1.42 1.42C14.32 16.5 13.25 16 12 16s-2.32.5-2.77 1.23l-1.42-1.42C8.71 14.72 10.25 14 12 14"/></svg>
+            </button>
+          
+        </div>
+        <div class="md-feedback__note">
+          
+            <div data-md-value="1" hidden>
+              
+              
+                
+              
+              Thanks for your feedback!
+            </div>
+          
+            <div data-md-value="0" hidden>
+              
+              
+                
+              
+              Thanks for your feedback! Please help us improve this page by adding to the discussion below.
+            </div>
+          
+        </div>
+      </div>
+    </fieldset>
+  </form>
+
+
+  <h2 id="__comments">Comments</h2>
+  <script src="https://giscus.app/client.js"
+        data-repo="langchain-ai/langgraph"
+        data-repo-id="R_kgDOKFU0lQ"
+        data-category="Discussions"
+        data-category-id="DIC_kwDOKFU0lc4CfZgA"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="preferred_color_scheme"
+        data-lang="en"
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async>
+</script>
+
+  <!-- Synchronize Giscus theme with palette -->
+  <script>
+    var giscus = document.querySelector("script[src*=giscus]")
+
+    // Set palette on initial load
+    var palette = __md_get("__palette")
+    if (palette && typeof palette.color === "object") {
+      var theme = palette.color.scheme === "slate"
+        ? "transparent_dark"
+        : "light"
+
+      // Instruct Giscus to set theme
+      giscus.setAttribute("data-theme", theme) 
+    }
+
+    // Register event handlers after documented loaded
+    document.addEventListener("DOMContentLoaded", function() {
+      var ref = document.querySelector("[data-md-component=palette]")
+      ref.addEventListener("change", function() {
+        var palette = __md_get("__palette")
+        if (palette && typeof palette.color === "object") {
+          var theme = palette.color.scheme === "slate"
+            ? "transparent_dark"
+            : "light"
+
+          // Instruct Giscus to change theme
+          var frame = document.querySelector(".giscus-frame")
+          frame.contentWindow.postMessage(
+            { giscus: { setConfig: { theme } } },
+            "https://giscus.app"
+          )
+        }
+      })
+    })
+  </script>
+
+                
+
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../high_level/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Why LangGraph?">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Why LangGraph?
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../agentic_concepts/" class="md-footer__link md-footer__link--next" aria-label="Next: Agent architectures">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Agent architectures
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 LangChain, Inc | <a href="#__consent">Consent Preferences</a>
+
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs Insiders
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://langchain-ai.github.io/langgraphjs/" target="_blank" rel="noopener" title="langchain-ai.github.io" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M0 32v448h448V32zm243.8 349.4c0 43.6-25.6 63.5-62.9 63.5-33.7 0-53.2-17.4-63.2-38.5l34.3-20.7c6.6 11.7 12.6 21.6 27.1 21.6 13.8 0 22.6-5.4 22.6-26.5V237.7h42.1zm99.6 63.5c-39.1 0-64.4-18.6-76.7-43l34.3-19.8c9 14.7 20.8 25.6 41.5 25.6 17.4 0 28.6-8.7 28.6-20.8 0-14.4-11.4-19.5-30.7-28l-10.5-4.5c-30.4-12.9-50.5-29.2-50.5-63.5 0-31.6 24.1-55.6 61.6-55.6 26.8 0 46 9.3 59.8 33.7L368 290c-7.2-12.9-15-18-27.1-18-12.3 0-20.1 7.8-20.1 18 0 12.6 7.8 17.7 25.9 25.6l10.5 4.5c35.8 15.3 55.9 31 55.9 66.2 0 37.8-29.8 58.6-69.7 58.6"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/langchain-ai/langgraph" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/LangChainAI" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+  
+    
+  
+
+
+
+
+  
+
+<h4>Cookie consent</h4>
+<p>We use cookies to recognize your repeated visits and preferences, as well as to measure the effectiveness of our documentation and whether users find what they're searching for. <strong>Clicking "Accept" makes our documentation better. Thank you!</strong> ❤️</p>
+<input class="md-toggle" type="checkbox" id="__settings" checked>
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="github" checked>
+          <span class="task-list-indicator"></span>
+          GitHub
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Accept</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Reject</button>
+    
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout((function(){document.querySelector("[data-md-component=consent]").hidden=!1}),250);var form=document.forms.consent;for(var action of["submit","reset"])form.addEventListener(action,(function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map((function(e){return[e,!0]})))),location.hash="",location.reload()}))</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["announce.dismiss", "content.code.annotate", "content.code.copy", "content.code.select", "content.tabs.link", "content.action.edit", "content.tooltips", "header.autohide", "navigation.indexes", "navigation.expand", "navigation.footer", "navigation.instant", "navigation.sections", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.path", "navigation.prune", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.c7c1ca2c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.203fd0bc.min.js"></script>
+      
+    
+  </body>
+</html>

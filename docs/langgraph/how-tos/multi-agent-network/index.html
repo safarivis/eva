@@ -1,0 +1,3633 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Build language agents as graphs">
+      
+      
+      
+        <link rel="canonical" href="https://langchain-ai.github.io/langgraph/how-tos/multi-agent-network/">
+      
+      
+        <link rel="prev" href="../agent-handoffs/">
+      
+      
+        <link rel="next" href="../multi-agent-multi-turn-convo/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../static/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.44+insiders-4.53.14">
+    
+    
+  
+    <title>How to build a multi-agent network</title>
+  
+
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.12320a83.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Public+Sans:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Public Sans";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-G8X6ELZYE0"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-G8X6ELZYE0",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-G8X6ELZYE0",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  
+    <script>if("undefined"!=typeof __md_analytics){var consent=__md_get("__consent");consent&&consent.analytics&&__md_analytics()}</script>
+  
+
+    
+    
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Public+Sans&display=swap");
+    :root {
+      --md-primary-fg-color: #333333;
+      --md-accent-fg-color: #1E88E5;
+      --md-default-bg-color: #FFFFFF;
+      --md-default-fg-color: #333333;
+      --md-text-font-family: "Public Sans", sans-serif;
+    }
+
+    body {
+      font-family: var(--md-text-font-family);
+      background-color: var(--md-default-bg-color);
+      color: var(--md-default-fg-color);
+    }
+
+    .md-main {
+      background-color: #FFFFFF;
+    }
+
+    .md-footer {
+      background-color: #F5F5F5;
+      color: #666666;
+    }
+
+    .md-footer-meta {
+      background-color: #EEEEEE;
+    }
+
+    .md-typeset a {
+      color: #1E88E5;
+    }
+
+    .md-typeset a:hover {
+      color: #1565C0;
+    }
+
+    .md-nav__link--active,
+    .md-nav__link:active {
+      color: #1E88E5;
+    }
+
+    .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    .md-search__input:hover,
+    .md-search__input:focus {
+      background-color: #EEEEEE;
+    }
+    /* Table of contents styles */
+    .md-nav--secondary .md-nav__item--active > .md-nav__link {
+      font-weight: bold;
+      color: var(--md-primary-fg-color);
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link {
+      font-weight: normal;
+      color: var(--md-default-fg-color);
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background-color: var(--md-default-fg-color);
+      border-radius: 50%;
+      margin-right: 0.5rem;
+    }
+
+    [data-md-color-scheme="slate"] {
+      --md-default-bg-color: #1E1E1E;
+      --md-default-fg-color: #FFFFFF;
+      --md-accent-fg-color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-main {
+      background-color: #1E1E1E;
+    }
+
+    [data-md-color-scheme="slate"] .navbar {
+      background-color: #1E1E1E;
+      color: #FFFFFF;
+      box-shadow: none;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-header {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-tabs {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__icon {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input::placeholder {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer-meta {
+      background-color: #1E1E1E;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a {
+      color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a:hover {
+      color: #90CAF9;
+    }
+
+    .notebook-links {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 1rem;
+    }
+    .notebook-links .md-content__button {
+      margin-left: 0.5rem;
+    }
+
+    [data-md-color-scheme=default] .logo-dark {
+      display: none !important;
+    }
+
+    [data-md-color-scheme=slate] .logo-light {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-CodeCell .jp-Cell-inputWrapper .jp-InputPrompt.jp-InputArea-prompt {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-Notebook .jp-Cell .jp-OutputPrompt {
+      display: none !important;
+    }
+
+    .md-banner {
+      background-color: #CFC9FA;
+      color: #000000;
+    }
+
+    .md-banner a {
+      color: #000000;
+      text-decoration: underline;
+    }
+
+    .md-banner a:hover {
+      color: #000000;
+    }
+
+    /* Dark mode banner links */
+    [data-md-color-scheme="slate"] .md-banner a {
+      color: #000000;
+    }
+
+    [data-md-color-scheme="slate"] .md-banner a:hover {
+      color: #000000;
+    }
+
+    /* control the navbar depth */
+    [data-md-level="2"] .md-nav {
+      display: none;
+    }
+
+    /* disable the collapse/expand icon in the navar */
+    .md-nav__icon {
+      display: none;
+    }
+  </style>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="gray">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#how-to-build-a-multi-agent-network" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+        <aside class="md-banner">
+          <div class="md-banner__inner md-grid md-typeset">
+            
+              <button class="md-banner__button md-icon" aria-label="Don't show this again">
+                
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+              </button>
+            
+            
+  <b>Join us at <a href="https://interrupt.langchain.com/" target="_blank" rel="noopener noreferrer"> Interrupt: The Agent AI Conference by LangChain</a> on May 13 & 14 in San Francisco!</b>
+
+          </div>
+          
+            <script>var el=document.querySelector("[data-md-component=announce]");if(el){var content=el.querySelector(".md-typeset");__md_hash(content.innerHTML)===__md_get("__announce")&&(el.hidden=!0)}</script>
+          
+        </aside>
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="" class="md-header__button md-logo" aria-label="" data-md-component="logo">
+      
+  <img src="../../static/wordmark_dark.svg" alt="logo" class="logo-light" />
+  <img src="../../static/wordmark_light.svg" alt="logo" class="logo-dark" />
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              How to build a multi-agent network
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="gray"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="grey" data-md-color-accent="white"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/langchain-ai/langgraph" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../.." class="md-tabs__link">
+          
+  
+    
+  
+  Home
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/graphs/" class="md-tabs__link">
+          
+  
+    
+  
+  API reference
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="" class="md-nav__button md-logo" aria-label="" data-md-component="logo">
+      
+  <img src="../../static/wordmark_dark.svg" alt="logo" class="logo-light" />
+  <img src="../../static/wordmark_light.svg" alt="logo" class="logo-dark" />
+
+    </a>
+    
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/langchain-ai/langgraph" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../.." class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Home
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_1_2" id="__nav_1_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Get started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Get started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/introduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Learn the basics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../tutorials/deployment/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_1_3" id="__nav_1_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_3_1" checked>
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    
+  
+    How-to Guides
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1_3_1" id="__nav_1_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_3_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    How-to Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_3_1_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_1_3_1_2" id="__nav_1_3_1_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    LangGraph
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_1_3_1_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1_3_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LangGraph
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-tos#langgraph" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    LangGraph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos#graph-api-basics" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Graph API Basics
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos#controllability" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Controllability
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos#persistence" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Persistence
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos#memory" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos#human-in-the-loop" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Human-in-the-loop
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos#streaming" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos#tool-calling" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Tool calling
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos#subgraphs" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Subgraphs
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_3_1_2_10" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_1_3_1_2_10" id="__nav_1_3_1_2_10_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-agent
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_1_3_1_2_10_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1_3_1_2_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Multi-agent
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-tos#multi-agent" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent-handoffs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    How to implement handoffs between agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    
+  
+    How to build a multi-agent network
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    How to build a multi-agent network
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-a-custom-agent-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using a custom agent implementation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-with-a-prebuilt-react-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using with a prebuilt ReAct agent
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multi-agent-multi-turn-convo/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    How to add multi-turn conversation in a multi-agent application
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multi-agent-network-functional/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    How to build a multi-agent network (functional API)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multi-agent-multi-turn-convo-functional/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    How to add multi-turn conversation in a multi-agent application (functional API)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos#state-management" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    State Management
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos#other" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Other
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos#prebuilt-react-agent" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Prebuilt ReAct Agent
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos#langgraph-platform" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    LangGraph Platform
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../concepts/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../tutorials/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_1_4" id="__nav_1_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Resources
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Resources
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prebuilt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Prebuilt Agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adopters/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Companies using LangGraph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/faq/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../troubleshooting/errors/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://academy.langchain.com/courses/intro-to-langgraph" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    LangGraph Academy Course
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    
+  
+  
+    <a href="../../reference/graphs/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    API reference
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-a-custom-agent-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using a custom agent implementation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-with-a-prebuilt-react-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using with a prebuilt ReAct agent
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+      
+        
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../.." class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+    
+    
+      
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Guides
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    How-to Guides
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../how-tos#langgraph" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    LangGraph
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../how-tos#multi-agent" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Multi-agent
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+<div class="notebook-links">
+  
+</div>
+
+
+                  
+
+
+  
+    <a href="https://github.com/langchain-ai/langgraph/edit/main/docs/docs/how-tos/multi-agent-network.ipynb" title="Edit this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="how-to-build-a-multi-agent-network">How to build a multi-agent network<a class="headerlink" href="#how-to-build-a-multi-agent-network" title="Permanent link">&para;</a></h1>
+<div class="admonition info">
+<p class="admonition-title">Prerequisites</p>
+<p>This guide assumes familiarity with the following:</p>
+<ul>
+<li><a href="../agent-handoffs">How to implement handoffs between agents</a></li>
+<li><a href="../../concepts/multi_agent">Multi-agent systems</a></li>
+<li><a href="../../concepts/low_level/#command">Command</a></li>
+<li><a href="../../concepts/low_level/">LangGraph Glossary</a></li>
+</ul>
+</div>
+<p>In this how-to guide we will demonstrate how to implement a <a href="../../concepts/multi_agent#network">multi-agent network</a> architecture where each agent can communicate with every other agent (many-to-many connections) and can decide which agent to call next. Individual agents will be defined as graph nodes.</p>
+<p>To implement communication between the agents, we will be using <a href="../agent-handoffs">handoffs</a>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">agent</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Command</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;agent&quot;</span><span class="p">,</span> <span class="s2">&quot;another_agent&quot;</span><span class="p">]]:</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="c1"># the condition for routing/halting can be anything, e.g. LLM tool call / structured output, etc.</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">goto</span> <span class="o">=</span> <span class="n">get_next_agent</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>  <span class="c1"># &#39;agent&#39; / &#39;another_agent&#39;</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="k">return</span> <span class="n">Command</span><span class="p">(</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        <span class="c1"># Specify which agent to call next</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        <span class="n">goto</span><span class="o">=</span><span class="n">goto</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="c1"># Update the graph state</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="n">update</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;my_state_key&quot;</span><span class="p">:</span> <span class="s2">&quot;my_state_value&quot;</span><span class="p">}</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="p">)</span>
+</span></code></pre></div>
+<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
+<p>First, let's install the required packages</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="o">%%</span><span class="n">capture</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">stderr</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="o">%</span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="n">langgraph</span> <span class="n">langchain</span><span class="o">-</span><span class="n">anthropic</span>
+</span></code></pre></div>
+<p><div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">getpass</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">_set_env</span><span class="p">(</span><span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">var</span><span class="p">):</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getpass</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">: &quot;</span><span class="p">)</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="n">_set_env</span><span class="p">(</span><span class="s2">&quot;ANTHROPIC_API_KEY&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+<div class="language-output highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="go">ANTHROPIC_API_KEY:  ········</span>
+</span></code></pre></div></p>
+<div class="admonition tip">
+    <p class="admonition-title">Set up <a href="https://smith.langchain.com">LangSmith</a> for LangGraph development</p>
+    <p style="padding-top: 5px;">
+        Sign up for LangSmith to quickly spot issues and improve the performance of your LangGraph projects. LangSmith lets you use trace data to debug, test, and monitor your LLM apps built with LangGraph — read more about how to get started <a href="https://docs.smith.langchain.com">here</a>. 
+    </p>
+</div>
+
+<h2 id="using-a-custom-agent-implementation">Using a custom agent implementation<a class="headerlink" href="#using-a-custom-agent-implementation" title="Permanent link">&para;</a></h2>
+<p>In this example we will build a team of travel assistant agents that can communicate with each other via handoffs.</p>
+<p>We will create 2 agents:</p>
+<ul>
+<li><code>travel_advisor</code>: can help with travel destination recommendations. Can ask <code>hotel_advisor</code> for help.</li>
+<li><code>hotel_advisor</code>: can help with hotel recommendations. Can ask <code>travel_advisor</code> for help.</li>
+</ul>
+<p>This is a fully-connected network - every agent can talk to any other agent. </p>
+<p>Each agent will have a corresponding node function that can conditionally return a <code>Command</code> object (the handoff). The node function will use an LLM with a system prompt and a tool that lets it signal when it needs to hand off to another agent. If the LLM responds with the tool calls, we will return a <code>Command(goto=&lt;other_agent&gt;)</code>.</p>
+<blockquote>
+<p><strong>Note</strong>: while we're using tools for the LLM to signal that it needs a handoff, the condition for the handoff can be anything: a specific response text from the LLM, structured output from the LLM, any other custom logic, etc.</p>
+</blockquote>
+<p>Now, let's define our agent nodes and graph!</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolMessage</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_anthropic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatAnthropic</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">MessagesState</span><span class="p">,</span> <span class="n">StateGraph</span><span class="p">,</span> <span class="n">START</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="n">model</span> <span class="o">=</span> <span class="n">ChatAnthropic</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;claude-3-5-sonnet-latest&quot;</span><span class="p">)</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="c1"># Define a helper for each of the agent nodes to call</span>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="nd">@tool</span>
+</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="k">def</span><span class="w"> </span><span class="nf">transfer_to_travel_advisor</span><span class="p">():</span>
+</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Ask travel advisor for help.&quot;&quot;&quot;</span>
+</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>    <span class="c1"># This tool is not returning anything: we&#39;re just using it</span>
+</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>    <span class="c1"># as a way for LLM to signal that it needs to hand off to another agent</span>
+</span><span id="__span-4-21"><a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>    <span class="c1"># (See the paragraph above)</span>
+</span><span id="__span-4-22"><a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>    <span class="k">return</span>
+</span><span id="__span-4-23"><a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>
+</span><span id="__span-4-24"><a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>
+</span><span id="__span-4-25"><a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a><span class="nd">@tool</span>
+</span><span id="__span-4-26"><a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a><span class="k">def</span><span class="w"> </span><span class="nf">transfer_to_hotel_advisor</span><span class="p">():</span>
+</span><span id="__span-4-27"><a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Ask hotel advisor for help.&quot;&quot;&quot;</span>
+</span><span id="__span-4-28"><a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a>    <span class="k">return</span>
+</span><span id="__span-4-29"><a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a>
+</span><span id="__span-4-30"><a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a>
+</span><span id="__span-4-31"><a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a><span class="k">def</span><span class="w"> </span><span class="nf">travel_advisor</span><span class="p">(</span>
+</span><span id="__span-4-32"><a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a>    <span class="n">state</span><span class="p">:</span> <span class="n">MessagesState</span><span class="p">,</span>
+</span><span id="__span-4-33"><a id="__codelineno-4-33" name="__codelineno-4-33" href="#__codelineno-4-33"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Command</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;hotel_advisor&quot;</span><span class="p">,</span> <span class="s2">&quot;__end__&quot;</span><span class="p">]]:</span>
+</span><span id="__span-4-34"><a id="__codelineno-4-34" name="__codelineno-4-34" href="#__codelineno-4-34"></a>    <span class="n">system_prompt</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="__span-4-35"><a id="__codelineno-4-35" name="__codelineno-4-35" href="#__codelineno-4-35"></a>        <span class="s2">&quot;You are a general travel expert that can recommend travel destinations (e.g. countries, cities, etc). &quot;</span>
+</span><span id="__span-4-36"><a id="__codelineno-4-36" name="__codelineno-4-36" href="#__codelineno-4-36"></a>        <span class="s2">&quot;If you need hotel recommendations, ask &#39;hotel_advisor&#39; for help.&quot;</span>
+</span><span id="__span-4-37"><a id="__codelineno-4-37" name="__codelineno-4-37" href="#__codelineno-4-37"></a>    <span class="p">)</span>
+</span><span id="__span-4-38"><a id="__codelineno-4-38" name="__codelineno-4-38" href="#__codelineno-4-38"></a>    <span class="n">messages</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">system_prompt</span><span class="p">}]</span> <span class="o">+</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">]</span>
+</span><span id="__span-4-39"><a id="__codelineno-4-39" name="__codelineno-4-39" href="#__codelineno-4-39"></a>    <span class="n">ai_msg</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">bind_tools</span><span class="p">([</span><span class="n">transfer_to_hotel_advisor</span><span class="p">])</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+</span><span id="__span-4-40"><a id="__codelineno-4-40" name="__codelineno-4-40" href="#__codelineno-4-40"></a>    <span class="c1"># If there are tool calls, the LLM needs to hand off to another agent</span>
+</span><span id="__span-4-41"><a id="__codelineno-4-41" name="__codelineno-4-41" href="#__codelineno-4-41"></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ai_msg</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="__span-4-42"><a id="__codelineno-4-42" name="__codelineno-4-42" href="#__codelineno-4-42"></a>        <span class="n">tool_call_id</span> <span class="o">=</span> <span class="n">ai_msg</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+</span><span id="__span-4-43"><a id="__codelineno-4-43" name="__codelineno-4-43" href="#__codelineno-4-43"></a>        <span class="c1"># NOTE: it&#39;s important to insert a tool message here because LLM providers are expecting</span>
+</span><span id="__span-4-44"><a id="__codelineno-4-44" name="__codelineno-4-44" href="#__codelineno-4-44"></a>        <span class="c1"># all AI messages to be followed by a corresponding tool result message</span>
+</span><span id="__span-4-45"><a id="__codelineno-4-45" name="__codelineno-4-45" href="#__codelineno-4-45"></a>        <span class="n">tool_msg</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-4-46"><a id="__codelineno-4-46" name="__codelineno-4-46" href="#__codelineno-4-46"></a>            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;tool&quot;</span><span class="p">,</span>
+</span><span id="__span-4-47"><a id="__codelineno-4-47" name="__codelineno-4-47" href="#__codelineno-4-47"></a>            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Successfully transferred&quot;</span><span class="p">,</span>
+</span><span id="__span-4-48"><a id="__codelineno-4-48" name="__codelineno-4-48" href="#__codelineno-4-48"></a>            <span class="s2">&quot;tool_call_id&quot;</span><span class="p">:</span> <span class="n">tool_call_id</span><span class="p">,</span>
+</span><span id="__span-4-49"><a id="__codelineno-4-49" name="__codelineno-4-49" href="#__codelineno-4-49"></a>        <span class="p">}</span>
+</span><span id="__span-4-50"><a id="__codelineno-4-50" name="__codelineno-4-50" href="#__codelineno-4-50"></a>        <span class="k">return</span> <span class="n">Command</span><span class="p">(</span><span class="n">goto</span><span class="o">=</span><span class="s2">&quot;hotel_advisor&quot;</span><span class="p">,</span> <span class="n">update</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">ai_msg</span><span class="p">,</span> <span class="n">tool_msg</span><span class="p">]})</span>
+</span><span id="__span-4-51"><a id="__codelineno-4-51" name="__codelineno-4-51" href="#__codelineno-4-51"></a>
+</span><span id="__span-4-52"><a id="__codelineno-4-52" name="__codelineno-4-52" href="#__codelineno-4-52"></a>    <span class="c1"># If the expert has an answer, return it directly to the user</span>
+</span><span id="__span-4-53"><a id="__codelineno-4-53" name="__codelineno-4-53" href="#__codelineno-4-53"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">ai_msg</span><span class="p">]}</span>
+</span><span id="__span-4-54"><a id="__codelineno-4-54" name="__codelineno-4-54" href="#__codelineno-4-54"></a>
+</span><span id="__span-4-55"><a id="__codelineno-4-55" name="__codelineno-4-55" href="#__codelineno-4-55"></a>
+</span><span id="__span-4-56"><a id="__codelineno-4-56" name="__codelineno-4-56" href="#__codelineno-4-56"></a><span class="k">def</span><span class="w"> </span><span class="nf">hotel_advisor</span><span class="p">(</span>
+</span><span id="__span-4-57"><a id="__codelineno-4-57" name="__codelineno-4-57" href="#__codelineno-4-57"></a>    <span class="n">state</span><span class="p">:</span> <span class="n">MessagesState</span><span class="p">,</span>
+</span><span id="__span-4-58"><a id="__codelineno-4-58" name="__codelineno-4-58" href="#__codelineno-4-58"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Command</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;travel_advisor&quot;</span><span class="p">,</span> <span class="s2">&quot;__end__&quot;</span><span class="p">]]:</span>
+</span><span id="__span-4-59"><a id="__codelineno-4-59" name="__codelineno-4-59" href="#__codelineno-4-59"></a>    <span class="n">system_prompt</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="__span-4-60"><a id="__codelineno-4-60" name="__codelineno-4-60" href="#__codelineno-4-60"></a>        <span class="s2">&quot;You are a hotel expert that can provide hotel recommendations for a given destination. &quot;</span>
+</span><span id="__span-4-61"><a id="__codelineno-4-61" name="__codelineno-4-61" href="#__codelineno-4-61"></a>        <span class="s2">&quot;If you need help picking travel destinations, ask &#39;travel_advisor&#39; for help.&quot;</span>
+</span><span id="__span-4-62"><a id="__codelineno-4-62" name="__codelineno-4-62" href="#__codelineno-4-62"></a>    <span class="p">)</span>
+</span><span id="__span-4-63"><a id="__codelineno-4-63" name="__codelineno-4-63" href="#__codelineno-4-63"></a>    <span class="n">messages</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">system_prompt</span><span class="p">}]</span> <span class="o">+</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">]</span>
+</span><span id="__span-4-64"><a id="__codelineno-4-64" name="__codelineno-4-64" href="#__codelineno-4-64"></a>    <span class="n">ai_msg</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">bind_tools</span><span class="p">([</span><span class="n">transfer_to_travel_advisor</span><span class="p">])</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+</span><span id="__span-4-65"><a id="__codelineno-4-65" name="__codelineno-4-65" href="#__codelineno-4-65"></a>    <span class="c1"># If there are tool calls, the LLM needs to hand off to another agent</span>
+</span><span id="__span-4-66"><a id="__codelineno-4-66" name="__codelineno-4-66" href="#__codelineno-4-66"></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ai_msg</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="__span-4-67"><a id="__codelineno-4-67" name="__codelineno-4-67" href="#__codelineno-4-67"></a>        <span class="n">tool_call_id</span> <span class="o">=</span> <span class="n">ai_msg</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+</span><span id="__span-4-68"><a id="__codelineno-4-68" name="__codelineno-4-68" href="#__codelineno-4-68"></a>        <span class="c1"># NOTE: it&#39;s important to insert a tool message here because LLM providers are expecting</span>
+</span><span id="__span-4-69"><a id="__codelineno-4-69" name="__codelineno-4-69" href="#__codelineno-4-69"></a>        <span class="c1"># all AI messages to be followed by a corresponding tool result message</span>
+</span><span id="__span-4-70"><a id="__codelineno-4-70" name="__codelineno-4-70" href="#__codelineno-4-70"></a>        <span class="n">tool_msg</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-4-71"><a id="__codelineno-4-71" name="__codelineno-4-71" href="#__codelineno-4-71"></a>            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;tool&quot;</span><span class="p">,</span>
+</span><span id="__span-4-72"><a id="__codelineno-4-72" name="__codelineno-4-72" href="#__codelineno-4-72"></a>            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Successfully transferred&quot;</span><span class="p">,</span>
+</span><span id="__span-4-73"><a id="__codelineno-4-73" name="__codelineno-4-73" href="#__codelineno-4-73"></a>            <span class="s2">&quot;tool_call_id&quot;</span><span class="p">:</span> <span class="n">tool_call_id</span><span class="p">,</span>
+</span><span id="__span-4-74"><a id="__codelineno-4-74" name="__codelineno-4-74" href="#__codelineno-4-74"></a>        <span class="p">}</span>
+</span><span id="__span-4-75"><a id="__codelineno-4-75" name="__codelineno-4-75" href="#__codelineno-4-75"></a>        <span class="k">return</span> <span class="n">Command</span><span class="p">(</span><span class="n">goto</span><span class="o">=</span><span class="s2">&quot;travel_advisor&quot;</span><span class="p">,</span> <span class="n">update</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">ai_msg</span><span class="p">,</span> <span class="n">tool_msg</span><span class="p">]})</span>
+</span><span id="__span-4-76"><a id="__codelineno-4-76" name="__codelineno-4-76" href="#__codelineno-4-76"></a>
+</span><span id="__span-4-77"><a id="__codelineno-4-77" name="__codelineno-4-77" href="#__codelineno-4-77"></a>    <span class="c1"># If the expert has an answer, return it directly to the user</span>
+</span><span id="__span-4-78"><a id="__codelineno-4-78" name="__codelineno-4-78" href="#__codelineno-4-78"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">ai_msg</span><span class="p">]}</span>
+</span><span id="__span-4-79"><a id="__codelineno-4-79" name="__codelineno-4-79" href="#__codelineno-4-79"></a>
+</span><span id="__span-4-80"><a id="__codelineno-4-80" name="__codelineno-4-80" href="#__codelineno-4-80"></a>
+</span><span id="__span-4-81"><a id="__codelineno-4-81" name="__codelineno-4-81" href="#__codelineno-4-81"></a><span class="n">builder</span> <span class="o">=</span> <span class="n">StateGraph</span><span class="p">(</span><span class="n">MessagesState</span><span class="p">)</span>
+</span><span id="__span-4-82"><a id="__codelineno-4-82" name="__codelineno-4-82" href="#__codelineno-4-82"></a><span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;travel_advisor&quot;</span><span class="p">,</span> <span class="n">travel_advisor</span><span class="p">)</span>
+</span><span id="__span-4-83"><a id="__codelineno-4-83" name="__codelineno-4-83" href="#__codelineno-4-83"></a><span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;hotel_advisor&quot;</span><span class="p">,</span> <span class="n">hotel_advisor</span><span class="p">)</span>
+</span><span id="__span-4-84"><a id="__codelineno-4-84" name="__codelineno-4-84" href="#__codelineno-4-84"></a><span class="c1"># we&#39;ll always start with a general travel advisor</span>
+</span><span id="__span-4-85"><a id="__codelineno-4-85" name="__codelineno-4-85" href="#__codelineno-4-85"></a><span class="n">builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">START</span><span class="p">,</span> <span class="s2">&quot;travel_advisor&quot;</span><span class="p">)</span>
+</span><span id="__span-4-86"><a id="__codelineno-4-86" name="__codelineno-4-86" href="#__codelineno-4-86"></a>
+</span><span id="__span-4-87"><a id="__codelineno-4-87" name="__codelineno-4-87" href="#__codelineno-4-87"></a><span class="n">graph</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+</span><span id="__span-4-88"><a id="__codelineno-4-88" name="__codelineno-4-88" href="#__codelineno-4-88"></a>
+</span><span id="__span-4-89"><a id="__codelineno-4-89" name="__codelineno-4-89" href="#__codelineno-4-89"></a><span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">display</span><span class="p">,</span> <span class="n">Image</span>
+</span><span id="__span-4-90"><a id="__codelineno-4-90" name="__codelineno-4-90" href="#__codelineno-4-90"></a>
+</span><span id="__span-4-91"><a id="__codelineno-4-91" name="__codelineno-4-91" href="#__codelineno-4-91"></a><span class="n">display</span><span class="p">(</span><span class="n">Image</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">get_graph</span><span class="p">()</span><span class="o">.</span><span class="n">draw_mermaid_png</span><span class="p">()))</span>
+</span></code></pre></div>
+<p>API Reference: <a href="https://python.langchain.com/api_reference/core/messages/langchain_core.messages.tool.ToolMessage.html">ToolMessage</a> | <a href="https://python.langchain.com/api_reference/core/tools/langchain_core.tools.convert.tool.html">tool</a> | <a href="https://python.langchain.com/api_reference/anthropic/chat_models/langchain_anthropic.chat_models.ChatAnthropic.html">ChatAnthropic</a> | <a href="https://langchain-ai.github.io/langgraph/reference/graphs/#langgraph.graph.state.StateGraph">StateGraph</a> | <a href="https://langchain-ai.github.io/langgraph/reference/constants/#langgraph.constants.START">START</a> | <a href="https://langchain-ai.github.io/langgraph/reference/types/#langgraph.types.Command">Command</a></p>
+<p><img alt="" src="data:image/png;base64,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" /></p>
+<p>First, let's invoke it with a generic input:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_to_messages</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">pretty_print_messages</span><span class="p">(</span><span class="n">update</span><span class="p">):</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">update</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        <span class="n">ns</span><span class="p">,</span> <span class="n">update</span> <span class="o">=</span> <span class="n">update</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        <span class="c1"># skip parent graph updates in the printouts</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ns</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>            <span class="k">return</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>        <span class="n">graph_id</span> <span class="o">=</span> <span class="n">ns</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Update from subgraph </span><span class="si">{</span><span class="n">graph_id</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>
+</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>    <span class="k">for</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">node_update</span> <span class="ow">in</span> <span class="n">update</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Update from node </span><span class="si">{</span><span class="n">node_name</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>
+</span><span id="__span-5-19"><a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">convert_to_messages</span><span class="p">(</span><span class="n">node_update</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">]):</span>
+</span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>            <span class="n">m</span><span class="o">.</span><span class="n">pretty_print</span><span class="p">()</span>
+</span><span id="__span-5-21"><a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+<p>API Reference: <a href="https://python.langchain.com/api_reference/core/messages/langchain_core.messages.utils.convert_to_messages.html">convert_to_messages</a></p>
+<p><div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;i wanna go somewhere warm in the caribbean&quot;</span><span class="p">)]}</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="p">):</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">pretty_print_messages</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+</span></code></pre></div>
+<div class="language-output highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="go">Update from node travel_advisor:</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="go">==================================[1m Ai Message [0m==================================</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="go">I&#39;d be happy to help you plan a Caribbean vacation! The Caribbean is perfect for warm weather getaways. Let me suggest some fantastic destinations:</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="go">1. Dominican Republic</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="go">- Known for beautiful beaches, all-inclusive resorts, and tropical climate</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="go">- Popular areas include Punta Cana and Puerto Plata</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="go">- Great mix of beaches, culture, and activities</span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="go">2. Jamaica</span>
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="go">- Famous for its laid-back atmosphere and beautiful beaches</span>
+</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="go">- Popular spots include Montego Bay, Negril, and Ocho Rios</span>
+</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="go">- Known for reggae music, delicious cuisine, and water sports</span>
+</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>
+</span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="go">3. Bahamas</span>
+</span><span id="__span-7-19"><a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a><span class="go">- Crystal clear waters and stunning beaches</span>
+</span><span id="__span-7-20"><a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a><span class="go">- Perfect for island hopping</span>
+</span><span id="__span-7-21"><a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a><span class="go">- Great for water activities and swimming with pigs at Pig Beach</span>
+</span><span id="__span-7-22"><a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a>
+</span><span id="__span-7-23"><a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a><span class="go">4. Turks and Caicos</span>
+</span><span id="__span-7-24"><a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a><span class="go">- Pristine beaches and luxury resorts</span>
+</span><span id="__span-7-25"><a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a><span class="go">- Excellent for snorkeling and diving</span>
+</span><span id="__span-7-26"><a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a><span class="go">- More peaceful and less crowded than some other Caribbean destinations</span>
+</span><span id="__span-7-27"><a id="__codelineno-7-27" name="__codelineno-7-27" href="#__codelineno-7-27"></a>
+</span><span id="__span-7-28"><a id="__codelineno-7-28" name="__codelineno-7-28" href="#__codelineno-7-28"></a><span class="go">5. Aruba</span>
+</span><span id="__span-7-29"><a id="__codelineno-7-29" name="__codelineno-7-29" href="#__codelineno-7-29"></a><span class="go">- Known for constant sunny weather and minimal rainfall</span>
+</span><span id="__span-7-30"><a id="__codelineno-7-30" name="__codelineno-7-30" href="#__codelineno-7-30"></a><span class="go">- Beautiful white sand beaches</span>
+</span><span id="__span-7-31"><a id="__codelineno-7-31" name="__codelineno-7-31" href="#__codelineno-7-31"></a><span class="go">- Great shopping and dining options</span>
+</span><span id="__span-7-32"><a id="__codelineno-7-32" name="__codelineno-7-32" href="#__codelineno-7-32"></a>
+</span><span id="__span-7-33"><a id="__codelineno-7-33" name="__codelineno-7-33" href="#__codelineno-7-33"></a><span class="go">Would you like me to provide more specific information about any of these destinations? Also, if you&#39;d like hotel recommendations for any of these locations, I can transfer you to our hotel advisor for specific accommodation suggestions. Just let me know which destination interests you most!</span>
+</span></code></pre></div>
+You can see that in this case only the first agent (<code>travel_advisor</code>) ran. Let's now ask for more recommendations:</p>
+<p><div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="p">{</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>        <span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>            <span class="p">(</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>                <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>                <span class="s2">&quot;i wanna go somewhere warm in the caribbean. pick one destination and give me hotel recommendations&quot;</span><span class="p">,</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>            <span class="p">)</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>        <span class="p">]</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>    <span class="p">}</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="p">):</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>    <span class="n">pretty_print_messages</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+</span></code></pre></div>
+<div class="language-output highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="go">Update from node travel_advisor:</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="go">==================================[1m Ai Message [0m==================================</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="go">[{&#39;text&#39;: &quot;I&#39;ll help you with a Caribbean destination recommendation! Given the vast number of beautiful Caribbean islands, I&#39;ll recommend one popular destination: the Dominican Republic, specifically Punta Cana. It offers pristine beaches, warm weather year-round, crystal-clear waters, and excellent resorts.\n\nLet me get some hotel recommendations for Punta Cana by consulting our hotel advisor.&quot;, &#39;type&#39;: &#39;text&#39;}, {&#39;id&#39;: &#39;toolu_01B9djUstpDKHVSy3o3rfzsG&#39;, &#39;input&#39;: {}, &#39;name&#39;: &#39;transfer_to_hotel_advisor&#39;, &#39;type&#39;: &#39;tool_use&#39;}]</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="go">Tool Calls:</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="go">  transfer_to_hotel_advisor (toolu_01B9djUstpDKHVSy3o3rfzsG)</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="go"> Call ID: toolu_01B9djUstpDKHVSy3o3rfzsG</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="go">  Args:</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="go">=================================[1m Tool Message [0m=================================</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="go">Successfully transferred</span>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="go">Update from node hotel_advisor:</span>
+</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>
+</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>
+</span><span id="__span-9-19"><a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="go">==================================[1m Ai Message [0m==================================</span>
+</span><span id="__span-9-20"><a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>
+</span><span id="__span-9-21"><a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a><span class="go">For Punta Cana, here are some top hotel recommendations:</span>
+</span><span id="__span-9-22"><a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>
+</span><span id="__span-9-23"><a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a><span class="go">1. Hyatt Zilara Cap Cana - Adults-only, all-inclusive luxury resort with pristine beachfront location, multiple pools, and upscale dining options.</span>
+</span><span id="__span-9-24"><a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>
+</span><span id="__span-9-25"><a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a><span class="go">2. Hard Rock Hotel &amp; Casino Punta Cana - Perfect for entertainment lovers, featuring 13 pools, 9 restaurants, a casino, and extensive amenities.</span>
+</span><span id="__span-9-26"><a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a>
+</span><span id="__span-9-27"><a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a><span class="go">3. Excellence Punta Cana - Adults-only, all-inclusive resort known for its romantic atmosphere and excellent service.</span>
+</span><span id="__span-9-28"><a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a>
+</span><span id="__span-9-29"><a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a><span class="go">4. Secrets Cap Cana Resort &amp; Spa - Sophisticated adults-only resort with beautiful swim-out suites and gourmet dining options.</span>
+</span><span id="__span-9-30"><a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a>
+</span><span id="__span-9-31"><a id="__codelineno-9-31" name="__codelineno-9-31" href="#__codelineno-9-31"></a><span class="go">5. The Reserve at Paradisus Palma Real - Family-friendly luxury resort with dedicated family concierge, kids&#39; activities, and beautiful pools.</span>
+</span><span id="__span-9-32"><a id="__codelineno-9-32" name="__codelineno-9-32" href="#__codelineno-9-32"></a>
+</span><span id="__span-9-33"><a id="__codelineno-9-33" name="__codelineno-9-33" href="#__codelineno-9-33"></a><span class="go">These resorts all offer:</span>
+</span><span id="__span-9-34"><a id="__codelineno-9-34" name="__codelineno-9-34" href="#__codelineno-9-34"></a><span class="go">- Direct beach access</span>
+</span><span id="__span-9-35"><a id="__codelineno-9-35" name="__codelineno-9-35" href="#__codelineno-9-35"></a><span class="go">- Multiple restaurants</span>
+</span><span id="__span-9-36"><a id="__codelineno-9-36" name="__codelineno-9-36" href="#__codelineno-9-36"></a><span class="go">- Swimming pools</span>
+</span><span id="__span-9-37"><a id="__codelineno-9-37" name="__codelineno-9-37" href="#__codelineno-9-37"></a><span class="go">- Spa facilities</span>
+</span><span id="__span-9-38"><a id="__codelineno-9-38" name="__codelineno-9-38" href="#__codelineno-9-38"></a><span class="go">- High-quality accommodations</span>
+</span><span id="__span-9-39"><a id="__codelineno-9-39" name="__codelineno-9-39" href="#__codelineno-9-39"></a>
+</span><span id="__span-9-40"><a id="__codelineno-9-40" name="__codelineno-9-40" href="#__codelineno-9-40"></a><span class="go">Would you like more specific information about any of these hotels or would you prefer to explore hotels in a different Caribbean destination?</span>
+</span></code></pre></div>
+Voila - <code>travel_advisor</code> picks a destination and then makes a decision to call <code>hotel_advisor</code> for more info!</p>
+<h2 id="using-with-a-prebuilt-react-agent">Using with a prebuilt ReAct agent<a class="headerlink" href="#using-with-a-prebuilt-react-agent" title="Permanent link">&para;</a></h2>
+<p>Let's now see how we can implement the same team of travel agents, but give each of the agents some tools to call. We'll be using prebuilt <a class="autorefs autorefs-internal" href="../../reference/prebuilt/#langgraph.prebuilt.chat_agent_executor.create_react_agent"><code>create_react_agent</code></a> to implement the agents. First, let's create some of the tools that the agents will be using:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="nd">@tool</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_travel_recommendations</span><span class="p">():</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get recommendation for travel destinations&quot;&quot;&quot;</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s2">&quot;aruba&quot;</span><span class="p">,</span> <span class="s2">&quot;turks and caicos&quot;</span><span class="p">])</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="nd">@tool</span>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_hotel_recommendations</span><span class="p">(</span><span class="n">location</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;aruba&quot;</span><span class="p">,</span> <span class="s2">&quot;turks and caicos&quot;</span><span class="p">]):</span>
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get hotel recommendations for a given destination.&quot;&quot;&quot;</span>
+</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>    <span class="k">return</span> <span class="p">{</span>
+</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>        <span class="s2">&quot;aruba&quot;</span><span class="p">:</span> <span class="p">[</span>
+</span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>            <span class="s2">&quot;The Ritz-Carlton, Aruba (Palm Beach)&quot;</span>
+</span><span id="__span-10-17"><a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>            <span class="s2">&quot;Bucuti &amp; Tara Beach Resort (Eagle Beach)&quot;</span>
+</span><span id="__span-10-18"><a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>        <span class="p">],</span>
+</span><span id="__span-10-19"><a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>        <span class="s2">&quot;turks and caicos&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Grace Bay Club&quot;</span><span class="p">,</span> <span class="s2">&quot;COMO Parrot Cay&quot;</span><span class="p">],</span>
+</span><span id="__span-10-20"><a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>    <span class="p">}[</span><span class="n">location</span><span class="p">]</span>
+</span></code></pre></div>
+<p>Let's also write a helper to create a handoff tool. See <a href="../agent-handoffs#implementing-handoffs-using-tools">this how-to guide</a> for a more in-depth walkthrough of how to make a handoff tool.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">InjectedToolCallId</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.prebuilt</span><span class="w"> </span><span class="kn">import</span> <span class="n">InjectedState</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="k">def</span><span class="w"> </span><span class="nf">make_handoff_tool</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">agent_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a tool that can return handoff via a Command&quot;&quot;&quot;</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>    <span class="n">tool_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;transfer_to_</span><span class="si">{</span><span class="n">agent_name</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>    <span class="nd">@tool</span><span class="p">(</span><span class="n">tool_name</span><span class="p">)</span>
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">handoff_to_agent</span><span class="p">(</span>
+</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>        <span class="n">state</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">InjectedState</span><span class="p">],</span>
+</span><span id="__span-11-15"><a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>        <span class="n">tool_call_id</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">InjectedToolCallId</span><span class="p">],</span>
+</span><span id="__span-11-16"><a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>    <span class="p">):</span>
+</span><span id="__span-11-17"><a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Ask another agent for help.&quot;&quot;&quot;</span>
+</span><span id="__span-11-18"><a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>        <span class="n">tool_message</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="__span-11-19"><a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;tool&quot;</span><span class="p">,</span>
+</span><span id="__span-11-20"><a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a>            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Successfully transferred to </span><span class="si">{</span><span class="n">agent_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+</span><span id="__span-11-21"><a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a>            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">tool_name</span><span class="p">,</span>
+</span><span id="__span-11-22"><a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a>            <span class="s2">&quot;tool_call_id&quot;</span><span class="p">:</span> <span class="n">tool_call_id</span><span class="p">,</span>
+</span><span id="__span-11-23"><a id="__codelineno-11-23" name="__codelineno-11-23" href="#__codelineno-11-23"></a>        <span class="p">}</span>
+</span><span id="__span-11-24"><a id="__codelineno-11-24" name="__codelineno-11-24" href="#__codelineno-11-24"></a>        <span class="k">return</span> <span class="n">Command</span><span class="p">(</span>
+</span><span id="__span-11-25"><a id="__codelineno-11-25" name="__codelineno-11-25" href="#__codelineno-11-25"></a>            <span class="c1"># navigate to another agent node in the PARENT graph</span>
+</span><span id="__span-11-26"><a id="__codelineno-11-26" name="__codelineno-11-26" href="#__codelineno-11-26"></a>            <span class="n">goto</span><span class="o">=</span><span class="n">agent_name</span><span class="p">,</span>
+</span><span id="__span-11-27"><a id="__codelineno-11-27" name="__codelineno-11-27" href="#__codelineno-11-27"></a>            <span class="n">graph</span><span class="o">=</span><span class="n">Command</span><span class="o">.</span><span class="n">PARENT</span><span class="p">,</span>
+</span><span id="__span-11-28"><a id="__codelineno-11-28" name="__codelineno-11-28" href="#__codelineno-11-28"></a>            <span class="c1"># This is the state update that the agent `agent_name` will see when it is invoked.</span>
+</span><span id="__span-11-29"><a id="__codelineno-11-29" name="__codelineno-11-29" href="#__codelineno-11-29"></a>            <span class="c1"># We&#39;re passing agent&#39;s FULL internal message history AND adding a tool message to make sure</span>
+</span><span id="__span-11-30"><a id="__codelineno-11-30" name="__codelineno-11-30" href="#__codelineno-11-30"></a>            <span class="c1"># the resulting chat history is valid.</span>
+</span><span id="__span-11-31"><a id="__codelineno-11-31" name="__codelineno-11-31" href="#__codelineno-11-31"></a>            <span class="n">update</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">tool_message</span><span class="p">]},</span>
+</span><span id="__span-11-32"><a id="__codelineno-11-32" name="__codelineno-11-32" href="#__codelineno-11-32"></a>        <span class="p">)</span>
+</span><span id="__span-11-33"><a id="__codelineno-11-33" name="__codelineno-11-33" href="#__codelineno-11-33"></a>
+</span><span id="__span-11-34"><a id="__codelineno-11-34" name="__codelineno-11-34" href="#__codelineno-11-34"></a>    <span class="k">return</span> <span class="n">handoff_to_agent</span>
+</span></code></pre></div>
+<p>API Reference: <a href="https://python.langchain.com/api_reference/core/tools/langchain_core.tools.convert.tool.html">tool</a> | <a href="https://python.langchain.com/api_reference/core/tools/langchain_core.tools.base.InjectedToolCallId.html">InjectedToolCallId</a> | <a href="https://langchain-ai.github.io/langgraph/reference/prebuilt/#langgraph.prebuilt.tool_node.InjectedState">InjectedState</a></p>
+<p>Now let's define our agent nodes and combine them into a graph:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">MessagesState</span><span class="p">,</span> <span class="n">StateGraph</span><span class="p">,</span> <span class="n">START</span><span class="p">,</span> <span class="n">END</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.prebuilt</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_react_agent</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="n">model</span> <span class="o">=</span> <span class="n">ChatAnthropic</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;claude-3-5-sonnet-latest&quot;</span><span class="p">)</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="c1"># Define travel advisor ReAct agent</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="n">travel_advisor_tools</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>    <span class="n">get_travel_recommendations</span><span class="p">,</span>
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>    <span class="n">make_handoff_tool</span><span class="p">(</span><span class="n">agent_name</span><span class="o">=</span><span class="s2">&quot;hotel_advisor&quot;</span><span class="p">),</span>
+</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="p">]</span>
+</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="n">travel_advisor</span> <span class="o">=</span> <span class="n">create_react_agent</span><span class="p">(</span>
+</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>    <span class="n">model</span><span class="p">,</span>
+</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>    <span class="n">travel_advisor_tools</span><span class="p">,</span>
+</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>    <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+</span><span id="__span-12-17"><a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>        <span class="s2">&quot;You are a general travel expert that can recommend travel destinations (e.g. countries, cities, etc). &quot;</span>
+</span><span id="__span-12-18"><a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>        <span class="s2">&quot;If you need hotel recommendations, ask &#39;hotel_advisor&#39; for help. &quot;</span>
+</span><span id="__span-12-19"><a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a>        <span class="s2">&quot;You MUST include human-readable response before transferring to another agent.&quot;</span>
+</span><span id="__span-12-20"><a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a>    <span class="p">),</span>
+</span><span id="__span-12-21"><a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a><span class="p">)</span>
+</span><span id="__span-12-22"><a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a>
+</span><span id="__span-12-23"><a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a>
+</span><span id="__span-12-24"><a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a><span class="k">def</span><span class="w"> </span><span class="nf">call_travel_advisor</span><span class="p">(</span>
+</span><span id="__span-12-25"><a id="__codelineno-12-25" name="__codelineno-12-25" href="#__codelineno-12-25"></a>    <span class="n">state</span><span class="p">:</span> <span class="n">MessagesState</span><span class="p">,</span>
+</span><span id="__span-12-26"><a id="__codelineno-12-26" name="__codelineno-12-26" href="#__codelineno-12-26"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Command</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;hotel_advisor&quot;</span><span class="p">,</span> <span class="s2">&quot;__end__&quot;</span><span class="p">]]:</span>
+</span><span id="__span-12-27"><a id="__codelineno-12-27" name="__codelineno-12-27" href="#__codelineno-12-27"></a>    <span class="c1"># You can also add additional logic like changing the input to the agent / output from the agent, etc.</span>
+</span><span id="__span-12-28"><a id="__codelineno-12-28" name="__codelineno-12-28" href="#__codelineno-12-28"></a>    <span class="c1"># NOTE: we&#39;re invoking the ReAct agent with the full history of messages in the state</span>
+</span><span id="__span-12-29"><a id="__codelineno-12-29" name="__codelineno-12-29" href="#__codelineno-12-29"></a>    <span class="k">return</span> <span class="n">travel_advisor</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+</span><span id="__span-12-30"><a id="__codelineno-12-30" name="__codelineno-12-30" href="#__codelineno-12-30"></a>
+</span><span id="__span-12-31"><a id="__codelineno-12-31" name="__codelineno-12-31" href="#__codelineno-12-31"></a>
+</span><span id="__span-12-32"><a id="__codelineno-12-32" name="__codelineno-12-32" href="#__codelineno-12-32"></a><span class="c1"># Define hotel advisor ReAct agent</span>
+</span><span id="__span-12-33"><a id="__codelineno-12-33" name="__codelineno-12-33" href="#__codelineno-12-33"></a><span class="n">hotel_advisor_tools</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-12-34"><a id="__codelineno-12-34" name="__codelineno-12-34" href="#__codelineno-12-34"></a>    <span class="n">get_hotel_recommendations</span><span class="p">,</span>
+</span><span id="__span-12-35"><a id="__codelineno-12-35" name="__codelineno-12-35" href="#__codelineno-12-35"></a>    <span class="n">make_handoff_tool</span><span class="p">(</span><span class="n">agent_name</span><span class="o">=</span><span class="s2">&quot;travel_advisor&quot;</span><span class="p">),</span>
+</span><span id="__span-12-36"><a id="__codelineno-12-36" name="__codelineno-12-36" href="#__codelineno-12-36"></a><span class="p">]</span>
+</span><span id="__span-12-37"><a id="__codelineno-12-37" name="__codelineno-12-37" href="#__codelineno-12-37"></a><span class="n">hotel_advisor</span> <span class="o">=</span> <span class="n">create_react_agent</span><span class="p">(</span>
+</span><span id="__span-12-38"><a id="__codelineno-12-38" name="__codelineno-12-38" href="#__codelineno-12-38"></a>    <span class="n">model</span><span class="p">,</span>
+</span><span id="__span-12-39"><a id="__codelineno-12-39" name="__codelineno-12-39" href="#__codelineno-12-39"></a>    <span class="n">hotel_advisor_tools</span><span class="p">,</span>
+</span><span id="__span-12-40"><a id="__codelineno-12-40" name="__codelineno-12-40" href="#__codelineno-12-40"></a>    <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+</span><span id="__span-12-41"><a id="__codelineno-12-41" name="__codelineno-12-41" href="#__codelineno-12-41"></a>        <span class="s2">&quot;You are a hotel expert that can provide hotel recommendations for a given destination. &quot;</span>
+</span><span id="__span-12-42"><a id="__codelineno-12-42" name="__codelineno-12-42" href="#__codelineno-12-42"></a>        <span class="s2">&quot;If you need help picking travel destinations, ask &#39;travel_advisor&#39; for help.&quot;</span>
+</span><span id="__span-12-43"><a id="__codelineno-12-43" name="__codelineno-12-43" href="#__codelineno-12-43"></a>        <span class="s2">&quot;You MUST include human-readable response before transferring to another agent.&quot;</span>
+</span><span id="__span-12-44"><a id="__codelineno-12-44" name="__codelineno-12-44" href="#__codelineno-12-44"></a>    <span class="p">),</span>
+</span><span id="__span-12-45"><a id="__codelineno-12-45" name="__codelineno-12-45" href="#__codelineno-12-45"></a><span class="p">)</span>
+</span><span id="__span-12-46"><a id="__codelineno-12-46" name="__codelineno-12-46" href="#__codelineno-12-46"></a>
+</span><span id="__span-12-47"><a id="__codelineno-12-47" name="__codelineno-12-47" href="#__codelineno-12-47"></a>
+</span><span id="__span-12-48"><a id="__codelineno-12-48" name="__codelineno-12-48" href="#__codelineno-12-48"></a><span class="k">def</span><span class="w"> </span><span class="nf">call_hotel_advisor</span><span class="p">(</span>
+</span><span id="__span-12-49"><a id="__codelineno-12-49" name="__codelineno-12-49" href="#__codelineno-12-49"></a>    <span class="n">state</span><span class="p">:</span> <span class="n">MessagesState</span><span class="p">,</span>
+</span><span id="__span-12-50"><a id="__codelineno-12-50" name="__codelineno-12-50" href="#__codelineno-12-50"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Command</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;travel_advisor&quot;</span><span class="p">,</span> <span class="s2">&quot;__end__&quot;</span><span class="p">]]:</span>
+</span><span id="__span-12-51"><a id="__codelineno-12-51" name="__codelineno-12-51" href="#__codelineno-12-51"></a>    <span class="k">return</span> <span class="n">hotel_advisor</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+</span><span id="__span-12-52"><a id="__codelineno-12-52" name="__codelineno-12-52" href="#__codelineno-12-52"></a>
+</span><span id="__span-12-53"><a id="__codelineno-12-53" name="__codelineno-12-53" href="#__codelineno-12-53"></a>
+</span><span id="__span-12-54"><a id="__codelineno-12-54" name="__codelineno-12-54" href="#__codelineno-12-54"></a><span class="n">builder</span> <span class="o">=</span> <span class="n">StateGraph</span><span class="p">(</span><span class="n">MessagesState</span><span class="p">)</span>
+</span><span id="__span-12-55"><a id="__codelineno-12-55" name="__codelineno-12-55" href="#__codelineno-12-55"></a><span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;travel_advisor&quot;</span><span class="p">,</span> <span class="n">call_travel_advisor</span><span class="p">)</span>
+</span><span id="__span-12-56"><a id="__codelineno-12-56" name="__codelineno-12-56" href="#__codelineno-12-56"></a><span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;hotel_advisor&quot;</span><span class="p">,</span> <span class="n">call_hotel_advisor</span><span class="p">)</span>
+</span><span id="__span-12-57"><a id="__codelineno-12-57" name="__codelineno-12-57" href="#__codelineno-12-57"></a><span class="c1"># we&#39;ll always start with a general travel advisor</span>
+</span><span id="__span-12-58"><a id="__codelineno-12-58" name="__codelineno-12-58" href="#__codelineno-12-58"></a><span class="n">builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">START</span><span class="p">,</span> <span class="s2">&quot;travel_advisor&quot;</span><span class="p">)</span>
+</span><span id="__span-12-59"><a id="__codelineno-12-59" name="__codelineno-12-59" href="#__codelineno-12-59"></a>
+</span><span id="__span-12-60"><a id="__codelineno-12-60" name="__codelineno-12-60" href="#__codelineno-12-60"></a><span class="n">graph</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+</span><span id="__span-12-61"><a id="__codelineno-12-61" name="__codelineno-12-61" href="#__codelineno-12-61"></a><span class="n">display</span><span class="p">(</span><span class="n">Image</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">get_graph</span><span class="p">()</span><span class="o">.</span><span class="n">draw_mermaid_png</span><span class="p">()))</span>
+</span></code></pre></div>
+<p>API Reference: <a href="https://langchain-ai.github.io/langgraph/reference/graphs/#langgraph.graph.state.StateGraph">StateGraph</a> | <a href="https://langchain-ai.github.io/langgraph/reference/constants/#langgraph.constants.START">START</a> | <a href="https://langchain-ai.github.io/langgraph/reference/constants/#langgraph.constants.END">END</a> | <a href="https://langchain-ai.github.io/langgraph/reference/prebuilt/#langgraph.prebuilt.chat_agent_executor.create_react_agent">create_react_agent</a> | <a href="https://langchain-ai.github.io/langgraph/reference/types/#langgraph.types.Command">Command</a></p>
+<p><img alt="" src="data:image/png;base64,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" /></p>
+<p>Let's test it out using the same input as our original multi-agent system:</p>
+<p><div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    <span class="p">{</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>        <span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>            <span class="p">(</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>                <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>                <span class="s2">&quot;i wanna go somewhere warm in the caribbean. pick one destination and give me hotel recommendations&quot;</span><span class="p">,</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>            <span class="p">)</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>        <span class="p">]</span>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>    <span class="p">},</span>
+</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>    <span class="n">subgraphs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="p">):</span>
+</span><span id="__span-13-12"><a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>    <span class="n">pretty_print_messages</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+</span></code></pre></div>
+<div class="language-output highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="go">Update from subgraph travel_advisor:</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="go">Update from node agent:</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="go">==================================[1m Ai Message [0m==================================</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>
+</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="go">[{&#39;text&#39;: &quot;I&#39;ll help you find a warm Caribbean destination and get some hotel recommendations for you.\n\nLet me first get some travel recommendations for Caribbean destinations.&quot;, &#39;type&#39;: &#39;text&#39;}, {&#39;id&#39;: &#39;toolu_01GGDP6XSoJZFCYVA9Emhg89&#39;, &#39;input&#39;: {}, &#39;name&#39;: &#39;get_travel_recommendations&#39;, &#39;type&#39;: &#39;tool_use&#39;}]</span>
+</span><span id="__span-14-10"><a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="go">Tool Calls:</span>
+</span><span id="__span-14-11"><a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="go">  get_travel_recommendations (toolu_01GGDP6XSoJZFCYVA9Emhg89)</span>
+</span><span id="__span-14-12"><a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="go"> Call ID: toolu_01GGDP6XSoJZFCYVA9Emhg89</span>
+</span><span id="__span-14-13"><a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="go">  Args:</span>
+</span><span id="__span-14-14"><a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>
+</span><span id="__span-14-15"><a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>
+</span><span id="__span-14-16"><a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a><span class="go">Update from subgraph travel_advisor:</span>
+</span><span id="__span-14-17"><a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>
+</span><span id="__span-14-18"><a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a>
+</span><span id="__span-14-19"><a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a><span class="go">Update from node tools:</span>
+</span><span id="__span-14-20"><a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a>
+</span><span id="__span-14-21"><a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a>
+</span><span id="__span-14-22"><a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a><span class="go">=================================[1m Tool Message [0m=================================</span>
+</span><span id="__span-14-23"><a id="__codelineno-14-23" name="__codelineno-14-23" href="#__codelineno-14-23"></a><span class="go">Name: get_travel_recommendations</span>
+</span><span id="__span-14-24"><a id="__codelineno-14-24" name="__codelineno-14-24" href="#__codelineno-14-24"></a>
+</span><span id="__span-14-25"><a id="__codelineno-14-25" name="__codelineno-14-25" href="#__codelineno-14-25"></a><span class="go">turks and caicos</span>
+</span><span id="__span-14-26"><a id="__codelineno-14-26" name="__codelineno-14-26" href="#__codelineno-14-26"></a>
+</span><span id="__span-14-27"><a id="__codelineno-14-27" name="__codelineno-14-27" href="#__codelineno-14-27"></a>
+</span><span id="__span-14-28"><a id="__codelineno-14-28" name="__codelineno-14-28" href="#__codelineno-14-28"></a><span class="go">Update from subgraph travel_advisor:</span>
+</span><span id="__span-14-29"><a id="__codelineno-14-29" name="__codelineno-14-29" href="#__codelineno-14-29"></a>
+</span><span id="__span-14-30"><a id="__codelineno-14-30" name="__codelineno-14-30" href="#__codelineno-14-30"></a>
+</span><span id="__span-14-31"><a id="__codelineno-14-31" name="__codelineno-14-31" href="#__codelineno-14-31"></a><span class="go">Update from node agent:</span>
+</span><span id="__span-14-32"><a id="__codelineno-14-32" name="__codelineno-14-32" href="#__codelineno-14-32"></a>
+</span><span id="__span-14-33"><a id="__codelineno-14-33" name="__codelineno-14-33" href="#__codelineno-14-33"></a>
+</span><span id="__span-14-34"><a id="__codelineno-14-34" name="__codelineno-14-34" href="#__codelineno-14-34"></a><span class="go">==================================[1m Ai Message [0m==================================</span>
+</span><span id="__span-14-35"><a id="__codelineno-14-35" name="__codelineno-14-35" href="#__codelineno-14-35"></a>
+</span><span id="__span-14-36"><a id="__codelineno-14-36" name="__codelineno-14-36" href="#__codelineno-14-36"></a><span class="go">[{&#39;text&#39;: &#39;Based on the recommendations, I suggest Turks and Caicos! This beautiful British Overseas Territory is known for its stunning white-sand beaches, crystal-clear turquoise waters, and perfect warm weather year-round. The main island, Providenciales (often called &quot;Provo&quot;), is home to the famous Grace Bay Beach, consistently rated one of the world\&#39;s best beaches.\n\nNow, let me connect you with our hotel advisor to get some specific hotel recommendations for Turks and Caicos.&#39;, &#39;type&#39;: &#39;text&#39;}, {&#39;id&#39;: &#39;toolu_01JbPSSbTdbWSPNPwsKxifKR&#39;, &#39;input&#39;: {}, &#39;name&#39;: &#39;transfer_to_hotel_advisor&#39;, &#39;type&#39;: &#39;tool_use&#39;}]</span>
+</span><span id="__span-14-37"><a id="__codelineno-14-37" name="__codelineno-14-37" href="#__codelineno-14-37"></a><span class="go">Tool Calls:</span>
+</span><span id="__span-14-38"><a id="__codelineno-14-38" name="__codelineno-14-38" href="#__codelineno-14-38"></a><span class="go">  transfer_to_hotel_advisor (toolu_01JbPSSbTdbWSPNPwsKxifKR)</span>
+</span><span id="__span-14-39"><a id="__codelineno-14-39" name="__codelineno-14-39" href="#__codelineno-14-39"></a><span class="go"> Call ID: toolu_01JbPSSbTdbWSPNPwsKxifKR</span>
+</span><span id="__span-14-40"><a id="__codelineno-14-40" name="__codelineno-14-40" href="#__codelineno-14-40"></a><span class="go">  Args:</span>
+</span><span id="__span-14-41"><a id="__codelineno-14-41" name="__codelineno-14-41" href="#__codelineno-14-41"></a>
+</span><span id="__span-14-42"><a id="__codelineno-14-42" name="__codelineno-14-42" href="#__codelineno-14-42"></a>
+</span><span id="__span-14-43"><a id="__codelineno-14-43" name="__codelineno-14-43" href="#__codelineno-14-43"></a><span class="go">Update from subgraph hotel_advisor:</span>
+</span><span id="__span-14-44"><a id="__codelineno-14-44" name="__codelineno-14-44" href="#__codelineno-14-44"></a>
+</span><span id="__span-14-45"><a id="__codelineno-14-45" name="__codelineno-14-45" href="#__codelineno-14-45"></a>
+</span><span id="__span-14-46"><a id="__codelineno-14-46" name="__codelineno-14-46" href="#__codelineno-14-46"></a><span class="go">Update from node agent:</span>
+</span><span id="__span-14-47"><a id="__codelineno-14-47" name="__codelineno-14-47" href="#__codelineno-14-47"></a>
+</span><span id="__span-14-48"><a id="__codelineno-14-48" name="__codelineno-14-48" href="#__codelineno-14-48"></a>
+</span><span id="__span-14-49"><a id="__codelineno-14-49" name="__codelineno-14-49" href="#__codelineno-14-49"></a><span class="go">==================================[1m Ai Message [0m==================================</span>
+</span><span id="__span-14-50"><a id="__codelineno-14-50" name="__codelineno-14-50" href="#__codelineno-14-50"></a>
+</span><span id="__span-14-51"><a id="__codelineno-14-51" name="__codelineno-14-51" href="#__codelineno-14-51"></a><span class="go">[{&#39;text&#39;: &#39;Let me get some hotel recommendations for Turks and Caicos:&#39;, &#39;type&#39;: &#39;text&#39;}, {&#39;id&#39;: &#39;toolu_01JfcmUUmpdiYEFXaDFEkh1G&#39;, &#39;input&#39;: {&#39;location&#39;: &#39;turks and caicos&#39;}, &#39;name&#39;: &#39;get_hotel_recommendations&#39;, &#39;type&#39;: &#39;tool_use&#39;}]</span>
+</span><span id="__span-14-52"><a id="__codelineno-14-52" name="__codelineno-14-52" href="#__codelineno-14-52"></a><span class="go">Tool Calls:</span>
+</span><span id="__span-14-53"><a id="__codelineno-14-53" name="__codelineno-14-53" href="#__codelineno-14-53"></a><span class="go">  get_hotel_recommendations (toolu_01JfcmUUmpdiYEFXaDFEkh1G)</span>
+</span><span id="__span-14-54"><a id="__codelineno-14-54" name="__codelineno-14-54" href="#__codelineno-14-54"></a><span class="go"> Call ID: toolu_01JfcmUUmpdiYEFXaDFEkh1G</span>
+</span><span id="__span-14-55"><a id="__codelineno-14-55" name="__codelineno-14-55" href="#__codelineno-14-55"></a><span class="go">  Args:</span>
+</span><span id="__span-14-56"><a id="__codelineno-14-56" name="__codelineno-14-56" href="#__codelineno-14-56"></a><span class="go">    location: turks and caicos</span>
+</span><span id="__span-14-57"><a id="__codelineno-14-57" name="__codelineno-14-57" href="#__codelineno-14-57"></a>
+</span><span id="__span-14-58"><a id="__codelineno-14-58" name="__codelineno-14-58" href="#__codelineno-14-58"></a>
+</span><span id="__span-14-59"><a id="__codelineno-14-59" name="__codelineno-14-59" href="#__codelineno-14-59"></a><span class="go">Update from subgraph hotel_advisor:</span>
+</span><span id="__span-14-60"><a id="__codelineno-14-60" name="__codelineno-14-60" href="#__codelineno-14-60"></a>
+</span><span id="__span-14-61"><a id="__codelineno-14-61" name="__codelineno-14-61" href="#__codelineno-14-61"></a>
+</span><span id="__span-14-62"><a id="__codelineno-14-62" name="__codelineno-14-62" href="#__codelineno-14-62"></a><span class="go">Update from node tools:</span>
+</span><span id="__span-14-63"><a id="__codelineno-14-63" name="__codelineno-14-63" href="#__codelineno-14-63"></a>
+</span><span id="__span-14-64"><a id="__codelineno-14-64" name="__codelineno-14-64" href="#__codelineno-14-64"></a>
+</span><span id="__span-14-65"><a id="__codelineno-14-65" name="__codelineno-14-65" href="#__codelineno-14-65"></a><span class="go">=================================[1m Tool Message [0m=================================</span>
+</span><span id="__span-14-66"><a id="__codelineno-14-66" name="__codelineno-14-66" href="#__codelineno-14-66"></a><span class="go">Name: get_hotel_recommendations</span>
+</span><span id="__span-14-67"><a id="__codelineno-14-67" name="__codelineno-14-67" href="#__codelineno-14-67"></a>
+</span><span id="__span-14-68"><a id="__codelineno-14-68" name="__codelineno-14-68" href="#__codelineno-14-68"></a><span class="go">[&quot;Grace Bay Club&quot;, &quot;COMO Parrot Cay&quot;]</span>
+</span><span id="__span-14-69"><a id="__codelineno-14-69" name="__codelineno-14-69" href="#__codelineno-14-69"></a>
+</span><span id="__span-14-70"><a id="__codelineno-14-70" name="__codelineno-14-70" href="#__codelineno-14-70"></a>
+</span><span id="__span-14-71"><a id="__codelineno-14-71" name="__codelineno-14-71" href="#__codelineno-14-71"></a><span class="go">Update from subgraph hotel_advisor:</span>
+</span><span id="__span-14-72"><a id="__codelineno-14-72" name="__codelineno-14-72" href="#__codelineno-14-72"></a>
+</span><span id="__span-14-73"><a id="__codelineno-14-73" name="__codelineno-14-73" href="#__codelineno-14-73"></a>
+</span><span id="__span-14-74"><a id="__codelineno-14-74" name="__codelineno-14-74" href="#__codelineno-14-74"></a><span class="go">Update from node agent:</span>
+</span><span id="__span-14-75"><a id="__codelineno-14-75" name="__codelineno-14-75" href="#__codelineno-14-75"></a>
+</span><span id="__span-14-76"><a id="__codelineno-14-76" name="__codelineno-14-76" href="#__codelineno-14-76"></a>
+</span><span id="__span-14-77"><a id="__codelineno-14-77" name="__codelineno-14-77" href="#__codelineno-14-77"></a><span class="go">==================================[1m Ai Message [0m==================================</span>
+</span><span id="__span-14-78"><a id="__codelineno-14-78" name="__codelineno-14-78" href="#__codelineno-14-78"></a>
+</span><span id="__span-14-79"><a id="__codelineno-14-79" name="__codelineno-14-79" href="#__codelineno-14-79"></a><span class="go">Here are two excellent hotel options in Turks and Caicos:</span>
+</span><span id="__span-14-80"><a id="__codelineno-14-80" name="__codelineno-14-80" href="#__codelineno-14-80"></a>
+</span><span id="__span-14-81"><a id="__codelineno-14-81" name="__codelineno-14-81" href="#__codelineno-14-81"></a><span class="go">1. Grace Bay Club: This luxury resort is located on the world-famous Grace Bay Beach. It offers elegant accommodations, multiple swimming pools, a spa, and several dining options. The resort is divided into different sections including adults-only and family-friendly areas.</span>
+</span><span id="__span-14-82"><a id="__codelineno-14-82" name="__codelineno-14-82" href="#__codelineno-14-82"></a>
+</span><span id="__span-14-83"><a id="__codelineno-14-83" name="__codelineno-14-83" href="#__codelineno-14-83"></a><span class="go">2. COMO Parrot Cay: This exclusive private island resort offers the ultimate luxury escape. It features pristine beaches, world-class spa facilities, and exceptional dining experiences. The resort is known for its serene atmosphere and excellent service.</span>
+</span><span id="__span-14-84"><a id="__codelineno-14-84" name="__codelineno-14-84" href="#__codelineno-14-84"></a>
+</span><span id="__span-14-85"><a id="__codelineno-14-85" name="__codelineno-14-85" href="#__codelineno-14-85"></a><span class="go">Would you like more specific information about either of these properties?</span>
+</span></code></pre></div></p>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  <form class="md-feedback" name="feedback" hidden>
+    <fieldset>
+      <legend class="md-feedback__title">
+        Was this page helpful?
+      </legend>
+      <div class="md-feedback__inner">
+        <div class="md-feedback__list">
+          
+            <button class="md-feedback__icon md-icon" type="submit" title="This page was helpful" data-md-value="1">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 0-8-8 8 8 0 0 0-8 8 8 8 0 0 0 8 8 8 8 0 0 0 8-8m2 0a10 10 0 0 1-10 10A10 10 0 0 1 2 12 10 10 0 0 1 12 2a10 10 0 0 1 10 10M10 9.5c0 .8-.7 1.5-1.5 1.5S7 10.3 7 9.5 7.7 8 8.5 8s1.5.7 1.5 1.5m7 0c0 .8-.7 1.5-1.5 1.5S14 10.3 14 9.5 14.7 8 15.5 8s1.5.7 1.5 1.5m-5 7.73c-1.75 0-3.29-.73-4.19-1.81L9.23 14c.45.72 1.52 1.23 2.77 1.23s2.32-.51 2.77-1.23l1.42 1.42c-.9 1.08-2.44 1.81-4.19 1.81"/></svg>
+            </button>
+          
+            <button class="md-feedback__icon md-icon" type="submit" title="This page could be improved" data-md-value="0">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 0-8-8 8 8 0 0 0-8 8 8 8 0 0 0 8 8 8 8 0 0 0 8-8m2 0a10 10 0 0 1-10 10A10 10 0 0 1 2 12 10 10 0 0 1 12 2a10 10 0 0 1 10 10m-6.5-4c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5-1.5-.7-1.5-1.5.7-1.5 1.5-1.5M10 9.5c0 .8-.7 1.5-1.5 1.5S7 10.3 7 9.5 7.7 8 8.5 8s1.5.7 1.5 1.5m2 4.5c1.75 0 3.29.72 4.19 1.81l-1.42 1.42C14.32 16.5 13.25 16 12 16s-2.32.5-2.77 1.23l-1.42-1.42C8.71 14.72 10.25 14 12 14"/></svg>
+            </button>
+          
+        </div>
+        <div class="md-feedback__note">
+          
+            <div data-md-value="1" hidden>
+              
+              
+                
+              
+              Thanks for your feedback!
+            </div>
+          
+            <div data-md-value="0" hidden>
+              
+              
+                
+              
+              Thanks for your feedback! Please help us improve this page by adding to the discussion below.
+            </div>
+          
+        </div>
+      </div>
+    </fieldset>
+  </form>
+
+
+  <h2 id="__comments">Comments</h2>
+  <script src="https://giscus.app/client.js"
+        data-repo="langchain-ai/langgraph"
+        data-repo-id="R_kgDOKFU0lQ"
+        data-category="Discussions"
+        data-category-id="DIC_kwDOKFU0lc4CfZgA"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="preferred_color_scheme"
+        data-lang="en"
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async>
+</script>
+
+  <!-- Synchronize Giscus theme with palette -->
+  <script>
+    var giscus = document.querySelector("script[src*=giscus]")
+
+    // Set palette on initial load
+    var palette = __md_get("__palette")
+    if (palette && typeof palette.color === "object") {
+      var theme = palette.color.scheme === "slate"
+        ? "transparent_dark"
+        : "light"
+
+      // Instruct Giscus to set theme
+      giscus.setAttribute("data-theme", theme) 
+    }
+
+    // Register event handlers after documented loaded
+    document.addEventListener("DOMContentLoaded", function() {
+      var ref = document.querySelector("[data-md-component=palette]")
+      ref.addEventListener("change", function() {
+        var palette = __md_get("__palette")
+        if (palette && typeof palette.color === "object") {
+          var theme = palette.color.scheme === "slate"
+            ? "transparent_dark"
+            : "light"
+
+          // Instruct Giscus to change theme
+          var frame = document.querySelector(".giscus-frame")
+          frame.contentWindow.postMessage(
+            { giscus: { setConfig: { theme } } },
+            "https://giscus.app"
+          )
+        }
+      })
+    })
+  </script>
+
+                
+
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../agent-handoffs/" class="md-footer__link md-footer__link--prev" aria-label="Previous: How to implement handoffs between agents">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                How to implement handoffs between agents
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../multi-agent-multi-turn-convo/" class="md-footer__link md-footer__link--next" aria-label="Next: How to add multi-turn conversation in a multi-agent application">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                How to add multi-turn conversation in a multi-agent application
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 LangChain, Inc | <a href="#__consent">Consent Preferences</a>
+
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs Insiders
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://langchain-ai.github.io/langgraphjs/" target="_blank" rel="noopener" title="langchain-ai.github.io" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M0 32v448h448V32zm243.8 349.4c0 43.6-25.6 63.5-62.9 63.5-33.7 0-53.2-17.4-63.2-38.5l34.3-20.7c6.6 11.7 12.6 21.6 27.1 21.6 13.8 0 22.6-5.4 22.6-26.5V237.7h42.1zm99.6 63.5c-39.1 0-64.4-18.6-76.7-43l34.3-19.8c9 14.7 20.8 25.6 41.5 25.6 17.4 0 28.6-8.7 28.6-20.8 0-14.4-11.4-19.5-30.7-28l-10.5-4.5c-30.4-12.9-50.5-29.2-50.5-63.5 0-31.6 24.1-55.6 61.6-55.6 26.8 0 46 9.3 59.8 33.7L368 290c-7.2-12.9-15-18-27.1-18-12.3 0-20.1 7.8-20.1 18 0 12.6 7.8 17.7 25.9 25.6l10.5 4.5c35.8 15.3 55.9 31 55.9 66.2 0 37.8-29.8 58.6-69.7 58.6"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/langchain-ai/langgraph" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/LangChainAI" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+  
+    
+  
+
+
+
+
+  
+
+<h4>Cookie consent</h4>
+<p>We use cookies to recognize your repeated visits and preferences, as well as to measure the effectiveness of our documentation and whether users find what they're searching for. <strong>Clicking "Accept" makes our documentation better. Thank you!</strong> ❤️</p>
+<input class="md-toggle" type="checkbox" id="__settings" checked>
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="github" checked>
+          <span class="task-list-indicator"></span>
+          GitHub
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Accept</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Reject</button>
+    
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout((function(){document.querySelector("[data-md-component=consent]").hidden=!1}),250);var form=document.forms.consent;for(var action of["submit","reset"])form.addEventListener(action,(function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map((function(e){return[e,!0]})))),location.hash="",location.reload()}))</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["announce.dismiss", "content.code.annotate", "content.code.copy", "content.code.select", "content.tabs.link", "content.action.edit", "content.tooltips", "header.autohide", "navigation.indexes", "navigation.expand", "navigation.footer", "navigation.instant", "navigation.sections", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.path", "navigation.prune", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.c7c1ca2c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.203fd0bc.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,3567 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Build language agents as graphs">
+      
+      
+      
+        <link rel="canonical" href="https://langchain-ai.github.io/langgraph/how-tos/tool-calling-errors/">
+      
+      
+        <link rel="prev" href="../tool-calling/">
+      
+      
+        <link rel="next" href="../pass-run-time-values-to-tools/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../static/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.44+insiders-4.53.14">
+    
+    
+  
+    <title>How to handle tool calling errors</title>
+  
+
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.12320a83.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Public+Sans:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Public Sans";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-G8X6ELZYE0"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-G8X6ELZYE0",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-G8X6ELZYE0",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  
+    <script>if("undefined"!=typeof __md_analytics){var consent=__md_get("__consent");consent&&consent.analytics&&__md_analytics()}</script>
+  
+
+    
+    
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Public+Sans&display=swap");
+    :root {
+      --md-primary-fg-color: #333333;
+      --md-accent-fg-color: #1E88E5;
+      --md-default-bg-color: #FFFFFF;
+      --md-default-fg-color: #333333;
+      --md-text-font-family: "Public Sans", sans-serif;
+    }
+
+    body {
+      font-family: var(--md-text-font-family);
+      background-color: var(--md-default-bg-color);
+      color: var(--md-default-fg-color);
+    }
+
+    .md-main {
+      background-color: #FFFFFF;
+    }
+
+    .md-footer {
+      background-color: #F5F5F5;
+      color: #666666;
+    }
+
+    .md-footer-meta {
+      background-color: #EEEEEE;
+    }
+
+    .md-typeset a {
+      color: #1E88E5;
+    }
+
+    .md-typeset a:hover {
+      color: #1565C0;
+    }
+
+    .md-nav__link--active,
+    .md-nav__link:active {
+      color: #1E88E5;
+    }
+
+    .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    .md-search__input:hover,
+    .md-search__input:focus {
+      background-color: #EEEEEE;
+    }
+    /* Table of contents styles */
+    .md-nav--secondary .md-nav__item--active > .md-nav__link {
+      font-weight: bold;
+      color: var(--md-primary-fg-color);
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link {
+      font-weight: normal;
+      color: var(--md-default-fg-color);
+    }
+
+    .md-nav--secondary .md-nav__item--nested > .md-nav__link::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background-color: var(--md-default-fg-color);
+      border-radius: 50%;
+      margin-right: 0.5rem;
+    }
+
+    [data-md-color-scheme="slate"] {
+      --md-default-bg-color: #1E1E1E;
+      --md-default-fg-color: #FFFFFF;
+      --md-accent-fg-color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-main {
+      background-color: #1E1E1E;
+    }
+
+    [data-md-color-scheme="slate"] .navbar {
+      background-color: #1E1E1E;
+      color: #FFFFFF;
+      box-shadow: none;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-header {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-tabs {
+      background-color: #1E1E1E;
+      color: #BDBDBD;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input {
+      background-color: #F5F5F5;
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__icon {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-search__input::placeholder {
+      color: #333333;
+    }
+
+    [data-md-color-scheme="slate"] .md-footer-meta {
+      background-color: #1E1E1E;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a {
+      color: #64B5F6;
+    }
+
+    [data-md-color-scheme="slate"] .md-typeset a:hover {
+      color: #90CAF9;
+    }
+
+    .notebook-links {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 1rem;
+    }
+    .notebook-links .md-content__button {
+      margin-left: 0.5rem;
+    }
+
+    [data-md-color-scheme=default] .logo-dark {
+      display: none !important;
+    }
+
+    [data-md-color-scheme=slate] .logo-light {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-CodeCell .jp-Cell-inputWrapper .jp-InputPrompt.jp-InputArea-prompt {
+      display: none !important;
+    }
+
+    .jupyter-wrapper .jp-Notebook .jp-Cell .jp-OutputPrompt {
+      display: none !important;
+    }
+
+    .md-banner {
+      background-color: #CFC9FA;
+      color: #000000;
+    }
+
+    .md-banner a {
+      color: #000000;
+      text-decoration: underline;
+    }
+
+    .md-banner a:hover {
+      color: #000000;
+    }
+
+    /* Dark mode banner links */
+    [data-md-color-scheme="slate"] .md-banner a {
+      color: #000000;
+    }
+
+    [data-md-color-scheme="slate"] .md-banner a:hover {
+      color: #000000;
+    }
+
+    /* control the navbar depth */
+    [data-md-level="2"] .md-nav {
+      display: none;
+    }
+
+    /* disable the collapse/expand icon in the navar */
+    .md-nav__icon {
+      display: none;
+    }
+  </style>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="gray">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#how-to-handle-tool-calling-errors" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+        <aside class="md-banner">
+          <div class="md-banner__inner md-grid md-typeset">
+            
+              <button class="md-banner__button md-icon" aria-label="Don't show this again">
+                
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+              </button>
+            
+            
+  <b>Join us at <a href="https://interrupt.langchain.com/" target="_blank" rel="noopener noreferrer"> Interrupt: The Agent AI Conference by LangChain</a> on May 13 & 14 in San Francisco!</b>
+
+          </div>
+          
+            <script>var el=document.querySelector("[data-md-component=announce]");if(el){var content=el.querySelector(".md-typeset");__md_hash(content.innerHTML)===__md_get("__announce")&&(el.hidden=!0)}</script>
+          
+        </aside>
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="" class="md-header__button md-logo" aria-label="" data-md-component="logo">
+      
+  <img src="../../static/wordmark_dark.svg" alt="logo" class="logo-light" />
+  <img src="../../static/wordmark_light.svg" alt="logo" class="logo-dark" />
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              How to handle tool calling errors
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="gray"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="grey" data-md-color-accent="white"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/langchain-ai/langgraph" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../.." class="md-tabs__link">
+          
+  
+    
+  
+  Home
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/graphs/" class="md-tabs__link">
+          
+  
+    
+  
+  API reference
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="" class="md-nav__button md-logo" aria-label="" data-md-component="logo">
+      
+  <img src="../../static/wordmark_dark.svg" alt="logo" class="logo-light" />
+  <img src="../../static/wordmark_light.svg" alt="logo" class="logo-dark" />
+
+    </a>
+    
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/langchain-ai/langgraph" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../.." class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Home
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_1_2" id="__nav_1_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Get started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Get started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/introduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Learn the basics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../tutorials/deployment/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_1_3" id="__nav_1_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_3_1" checked>
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    
+  
+    How-to Guides
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1_3_1" id="__nav_1_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_3_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    How-to Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_3_1_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_1_3_1_2" id="__nav_1_3_1_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    LangGraph
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_1_3_1_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1_3_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LangGraph
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-tos#langgraph" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    LangGraph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos#graph-api-basics" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Graph API Basics
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos#controllability" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Controllability
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos#persistence" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Persistence
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos#memory" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos#human-in-the-loop" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Human-in-the-loop
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos#streaming" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Streaming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_3_1_2_8" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_1_3_1_2_8" id="__nav_1_3_1_2_8_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Tool calling
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_1_3_1_2_8_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1_3_1_2_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tool calling
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-tos#tool-calling" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Tool calling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tool-calling/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    How to call tools using ToolNode
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    
+  
+    How to handle tool calling errors
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    How to handle tool calling errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-the-prebuilt-toolnode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using the prebuilt ToolNode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom strategies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pass-run-time-values-to-tools/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    How to pass runtime values to tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../update-state-from-tools/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    How to update graph state from tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pass-config-to-tools/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    How to pass config to tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../many-tools/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    How to handle large numbers of tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos#subgraphs" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Subgraphs
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos#multi-agent" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-agent
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos#state-management" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    State Management
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos#other" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Other
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos#prebuilt-react-agent" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Prebuilt ReAct Agent
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../how-tos#langgraph-platform" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    LangGraph Platform
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../concepts/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../tutorials/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_1_4" id="__nav_1_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Resources
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Resources
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prebuilt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Prebuilt Agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adopters/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Companies using LangGraph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/faq/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../troubleshooting/errors/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://academy.langchain.com/courses/intro-to-langgraph" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    LangGraph Academy Course
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    
+  
+  
+    <a href="../../reference/graphs/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    
+  
+    API reference
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-the-prebuilt-toolnode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using the prebuilt ToolNode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom strategies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+      
+        
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../.." class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+    
+    
+      
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Guides
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    How-to Guides
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../how-tos#langgraph" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    LangGraph
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../how-tos#tool-calling" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Tool calling
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+<div class="notebook-links">
+  
+</div>
+
+
+                  
+
+
+  
+    <a href="https://github.com/langchain-ai/langgraph/edit/main/docs/docs/how-tos/tool-calling-errors.ipynb" title="Edit this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="how-to-handle-tool-calling-errors">How to handle tool calling errors<a class="headerlink" href="#how-to-handle-tool-calling-errors" title="Permanent link">&para;</a></h1>
+<div class="admonition tip">
+    <p class="admonition-title">Prerequisites</p>
+    <p>
+        This guide assumes familiarity with the following:
+        <ul>
+            <li>
+                <a href="https://langchain-ai.github.io/langgraph/concepts/agentic_concepts/#tool-calling">
+                    Tool calling
+                </a>
+            </li>
+            <li>
+                <a href="https://langchain-ai.github.io/langgraph/how-tos/memory/delete-messages/">
+                    Deleting messages
+                </a>
+            </li>
+        </ul>
+    </p>
+</div>
+
+<p>LLMs aren't perfect at calling tools. The model may try to call a tool that doesn't exist or fail to return arguments that match the requested schema. Strategies like keeping schemas simple, reducing the number of tools you pass at once, and having good names and descriptions can help mitigate this risk, but aren't foolproof.</p>
+<p>This guide covers some ways to build error handling into your graphs to mitigate these failure modes.</p>
+<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
+<p>First, let's install the required packages and set our API keys</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="o">%%</span><span class="n">capture</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">stderr</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="o">%</span><span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">quiet</span> <span class="o">-</span><span class="n">U</span> <span class="n">langgraph</span> <span class="n">langchain_anthropic</span>
+</span></code></pre></div>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">getpass</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">_set_env</span><span class="p">(</span><span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">var</span><span class="p">):</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getpass</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">: &quot;</span><span class="p">)</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="n">_set_env</span><span class="p">(</span><span class="s2">&quot;ANTHROPIC_API_KEY&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+<div class="admonition tip">
+    <p class="admonition-title">Set up <a href="https://smith.langchain.com">LangSmith</a> for LangGraph development</p>
+    <p style="padding-top: 5px;">
+        Sign up for LangSmith to quickly spot issues and improve the performance of your LangGraph projects. LangSmith lets you use trace data to debug, test, and monitor your LLM apps built with LangGraph — read more about how to get started <a href="https://docs.smith.langchain.com">here</a>. 
+    </p>
+</div>
+
+<h2 id="using-the-prebuilt-toolnode">Using the prebuilt <code>ToolNode</code><a class="headerlink" href="#using-the-prebuilt-toolnode" title="Permanent link">&para;</a></h2>
+<p>To start, define a mock weather tool that has some hidden restrictions on input queries. The intent here is to simulate a real-world case where a model fails to call a tool correctly:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="nd">@tool</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_weather</span><span class="p">(</span><span class="n">location</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Call to get the current weather.&quot;&quot;&quot;</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="k">if</span> <span class="n">location</span> <span class="o">==</span> <span class="s2">&quot;san francisco&quot;</span><span class="p">:</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input queries must be proper nouns&quot;</span><span class="p">)</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="k">elif</span> <span class="n">location</span> <span class="o">==</span> <span class="s2">&quot;San Francisco&quot;</span><span class="p">:</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        <span class="k">return</span> <span class="s2">&quot;It&#39;s 60 degrees and foggy.&quot;</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid input.&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+<p>API Reference: <a href="https://python.langchain.com/api_reference/core/tools/langchain_core.tools.convert.tool.html">tool</a></p>
+<p>Next, set up a graph implementation of the <a href="https://langchain-ai.github.io/langgraph/concepts/agentic_concepts/#react-agent">ReAct agent</a>. This agent takes some query as input, then repeatedly call tools until it has enough information to resolve the query. We'll use the prebuilt <a href="https://langchain-ai.github.io/langgraph/reference/prebuilt/#toolnode"><code>ToolNode</code></a> to execute called tools, and a small, fast model powered by Anthropic:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_anthropic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatAnthropic</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">StateGraph</span><span class="p">,</span> <span class="n">MessagesState</span><span class="p">,</span> <span class="n">START</span><span class="p">,</span> <span class="n">END</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.prebuilt</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolNode</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">tool_node</span> <span class="o">=</span> <span class="n">ToolNode</span><span class="p">([</span><span class="n">get_weather</span><span class="p">])</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="n">model_with_tools</span> <span class="o">=</span> <span class="n">ChatAnthropic</span><span class="p">(</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;claude-3-haiku-20240307&quot;</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="p">)</span><span class="o">.</span><span class="n">bind_tools</span><span class="p">([</span><span class="n">get_weather</span><span class="p">])</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="k">def</span><span class="w"> </span><span class="nf">should_continue</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">MessagesState</span><span class="p">):</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>    <span class="n">messages</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">]</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>    <span class="n">last_message</span> <span class="o">=</span> <span class="n">messages</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>    <span class="k">if</span> <span class="n">last_message</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">:</span>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>        <span class="k">return</span> <span class="s2">&quot;tools&quot;</span>
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>    <span class="k">return</span> <span class="n">END</span>
+</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>
+</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>
+</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="k">def</span><span class="w"> </span><span class="nf">call_model</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">MessagesState</span><span class="p">):</span>
+</span><span id="__span-3-23"><a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>    <span class="n">messages</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">]</span>
+</span><span id="__span-3-24"><a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a>    <span class="n">response</span> <span class="o">=</span> <span class="n">model_with_tools</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+</span><span id="__span-3-25"><a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">response</span><span class="p">]}</span>
+</span><span id="__span-3-26"><a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a>
+</span><span id="__span-3-27"><a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a>
+</span><span id="__span-3-28"><a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a><span class="n">workflow</span> <span class="o">=</span> <span class="n">StateGraph</span><span class="p">(</span><span class="n">MessagesState</span><span class="p">)</span>
+</span><span id="__span-3-29"><a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a>
+</span><span id="__span-3-30"><a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a><span class="c1"># Define the two nodes we will cycle between</span>
+</span><span id="__span-3-31"><a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a><span class="n">workflow</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;agent&quot;</span><span class="p">,</span> <span class="n">call_model</span><span class="p">)</span>
+</span><span id="__span-3-32"><a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a><span class="n">workflow</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;tools&quot;</span><span class="p">,</span> <span class="n">tool_node</span><span class="p">)</span>
+</span><span id="__span-3-33"><a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a>
+</span><span id="__span-3-34"><a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a><span class="n">workflow</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">START</span><span class="p">,</span> <span class="s2">&quot;agent&quot;</span><span class="p">)</span>
+</span><span id="__span-3-35"><a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a><span class="n">workflow</span><span class="o">.</span><span class="n">add_conditional_edges</span><span class="p">(</span><span class="s2">&quot;agent&quot;</span><span class="p">,</span> <span class="n">should_continue</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;tools&quot;</span><span class="p">,</span> <span class="n">END</span><span class="p">])</span>
+</span><span id="__span-3-36"><a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a><span class="n">workflow</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;tools&quot;</span><span class="p">,</span> <span class="s2">&quot;agent&quot;</span><span class="p">)</span>
+</span><span id="__span-3-37"><a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a>
+</span><span id="__span-3-38"><a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a><span class="n">app</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+</span></code></pre></div>
+<p>API Reference: <a href="https://python.langchain.com/api_reference/anthropic/chat_models/langchain_anthropic.chat_models.ChatAnthropic.html">ChatAnthropic</a> | <a href="https://langchain-ai.github.io/langgraph/reference/graphs/#langgraph.graph.state.StateGraph">StateGraph</a> | <a href="https://langchain-ai.github.io/langgraph/reference/constants/#langgraph.constants.START">START</a> | <a href="https://langchain-ai.github.io/langgraph/reference/constants/#langgraph.constants.END">END</a> | <a href="https://langchain-ai.github.io/langgraph/reference/prebuilt/#langgraph.prebuilt.tool_node.ToolNode">ToolNode</a></p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">display</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">try</span><span class="p">:</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">display</span><span class="p">(</span><span class="n">Image</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">get_graph</span><span class="p">()</span><span class="o">.</span><span class="n">draw_mermaid_png</span><span class="p">()))</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="c1"># This requires some extra dependencies and is optional</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="k">pass</span>
+</span></code></pre></div>
+<p><img alt="" src="data:image/jpg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCAD5ANYDASIAAhEBAxEB/8QAHQABAAICAwEBAAAAAAAAAAAAAAYHAwUCBAgBCf/EAFIQAAEEAQIDAgUOCQkGBwAAAAEAAgMEBQYRBxIhEzEWFyJBlAgUFTJRVVZhcXSy0dLTIzY3QlSBkZOVGDVDUnWCkrO0JCUncpahMzRTZLHB8P/EABsBAQEAAwEBAQAAAAAAAAAAAAABAgMFBAYH/8QAMxEBAAECAQkFCAIDAAAAAAAAAAECEQMEEiExQVFSkdEUM2FxoQUTFSNiscHhgZIi8PH/2gAMAwEAAhEDEQA/AP1TREQEREBERAWG1cr0o+exPHXZ/WleGj9pWju37uevz47FTGlVrnkt5NrQ5zX/APpQhwLS4d7nuBa3cNAc4u5Ptbh/p+F5llxcF+ydua1fb65mcR5y9+5/Z0W+KKae8n+IW293fCrC++9D0ln1p4VYX34oeks+tPBXC+89D0Zn1J4K4X3noejM+pX5Pj6LoPCrC+/FD0ln1p4VYX34oeks+tPBXC+89D0Zn1J4K4X3noejM+pPk+PoaDwqwvvxQ9JZ9aeFWF9+KHpLPrTwVwvvPQ9GZ9SeCuF956HozPqT5Pj6Gg8KsL78UPSWfWu5UyFW+0uq2YbLR3mGQOA/Yun4K4X3noejM+pdS1oHTluQSuw1OGdp3bYrRCGZp+KRmzh+op8mds+n6TQ36KMR2bmkZ4Yb9qbJYeVwjZen5e1quJ2a2UgAOYegD9twdubfcuEnWuujN8YJgREWtBERAREQEREBERAREQEREBajV2Yfp/S+VyMQDpq1Z8kTXdxft5IP69lt1HuIVOW9onMxwtMkza7pWMaNy5zPLAA90luy24MROJTFWq8LGtsNP4ePAYapQjPN2LPLk88khO73n43OLnE+6StisNO1FeqQWYHc8MzGyMd7rSNwf2FZlhVMzVM1a0FEuIHFbS3C6LHv1JkzSfkJHRVIIa01madzW8z+SKFj3kNHUnbYbjchS1Up6pWhUfBp3Jx4/WDdSY59mTEZzR2ON2ahK6NocyaIBwdHL0Ba5paeXqW9CsR2cp6pjT+N4q6b0m2tetUc3hfZeHJ1cdbnB55IWwtDY4XeS5sjnOkJAZs0O5S4KQWuP2gqOuW6Qs571vnX2m0WxS052wmw4bthE5j7LtDuNm8+53A2VUx5fWendd8Ltfax0nlrtuxpGzicxDp6g+4+neklrTDnij3LWu7J43G4aehPnUA4t4/Wep5tTDMYbX+W1Bj9VwW8fUxsEwwsOJguRSRyRtjIjsSGJpJGz5ec9GgDoHpi3x20TT1je0ocpYsahozR17VCnjbVh8DpI2yMLzHE4NYWvb5ZPLuSN9wQNXwF4943jngrNyrRu465XsWY5K89KyyMRssSRRubNJExj3OawOcxpJYSWuAIXW4S6fu4zjFxpyVrG2KkGSy2PdVtzQOY21GzHQNJY4jZ7Wv529NwDzDv3Wr9THYyGl8PlNCZjT2axuSxeUylr19YovbQswy3pJY3Q2NuR5c2Zp5Qdxyu3A2QXgiIg6+QoV8rQs0rcTZ6tmN0MsT+57HDZwPyglajQ1+e/puEWpe3t1JZqM0p33kfDK6IvO/9bk5v1rfqM8PG9pp+S4N+S/dtXI+YbbxyTvdGdvjZyn9a9FPc1X3x+V2JMiIvOgiIgIiICIiAiIgIiICIiAiIgilOdmg3mjb2iwDnl1O315Km53MMp7mN3J5H9G7bMOxDe0x6r4RaG1/kY8lqPSWEz95sQhZayFGKeQRgkhoc4E8u7nHb4ypa9jZGOY9oexw2LXDcEe4VGn8PsdCScbZyGFB/osdbfHEPc2iO8bf1NH/YL0TVRiaa5tPO/wDv8stEo8fU28KC0N8W+luUEkD2Jg2B8/5vxBSbR/DvS3D2GzFpjT2M0/FZc107MbUZAJSNwC4NA323Pf7qw+BNj4VZ799D90ngTY+FWe/fQ/dJ7vD4/SUtG9KEUX8CbHwqz376H7pRO9jstX4q4PTzNU5j2OuYW/flJlh7TtYZ6bGbfg/a8tiTfp38vUed7vD4/SS0b1qLS6s0XgNd4xuO1HhaGdx7ZBM2rka7Z4w8AgO5XAjcBxG/xldHwJsfCrPfvofuk8CbHwqz376H7pPd4fH6SWje0DfU3cKWBwbw40u0PGzgMTB1G4Ox8n3QP2LZ6Z4K6A0Zl4srgNF4HDZOIObHco4+KGVocNnAOa0EbgkFdzwJsfCrPfvoful98AKdh3+8MhlcqzffsbV14iPysZytcPicCEzMONdfKP8AhaHHK5Dwu7fDYqXnqP5ochkYXeRCzqHRRuHfKe7p7QbuJB5WuksEEdaCOGFjYoo2hjGMGwa0DYADzBfKtWGlXjr14Y68EbQ1kUTQ1rQO4ADoAsqwrriYzadUEiIi1IIiICIiAiIgIiICIiAiIgIiICIiAiIgKvssW+P7SwJPN4MZfYebb11jd/P8nm/WPPYKr/K7+P7S3Vu3gxl+hA3/APNY3u8+3ydO7fzILAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQFXuWA/lA6VPM0HwXzHk7dT/ALXjOu+3d+vzj9VhKvctt/KC0r1PN4L5jYcv/u8Z5/8A9/2QWEiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIonf1ZkbVyxBg6NazFXkMMtu7O6JhkG4c1gaxxdykbE9ADuBuQdtuHh1Yk2pW10sRQj2d1h+gYP0ub7tPZ3WH6Bg/S5vu1v7LXvjnBZN14D1j6vbK6e9URXxNrhXO7UOJjuadGPizAd28s9is5r2O9b78p9bjbYeUHg+YL2L7O6w/QMH6XN92qgz3qf5tQ+qDw/Fqxj8MMzjqvYmoLEhinmaOWKdx7PfnY07D/lZ/V6uy1745wWelkUI9ndYfoGD9Lm+7T2d1h+gYP0ub7tOy1745wWTdFCPZ3WH6Bg/S5vu1li1flsW5kmdoU4qBcGvtUbD5OwJOwc9jmDyN9t3AnbfcjYFwk5LibLT/ADBZMkRF5EEREBERAREQEREBERAREQEREBERAVeaGO+BeT3m/eJ+M+upVYarzQv8wP8An13/AFUq9+T93V5x+V2JAiItiCIiAiLo2M5j6uXqYua7BHkrcckteo6QCWVjOXnc1veQ3mbufNzD3UHeUd4jnbh7qg9Nxi7RG43/AKJykSjnEj8neqf7Ktf5LluwO9o84+7KnXCxGe1HyLkuLPaN+RclxmIiIgIiICIiAiIgIiICIiAiIgIiICrzQv8AMD/n13/VSqw1Xmhf5gf8+u/6qVe/J+7q84/K7EgXkPiHrLUMOqb+t9KXNSMw2K1ZVw1qfI6gIpTO9dx1rEEOOEZa6Pdzm9o5zXhwLhuAvXirXOepw4dajyOSvZDTgnnyMxtWGtuWGRmc7bzsjbIGRzdP/FYGv7/K6lWqJnUig+Kua1DndU8QMQNRarp68hzFSrpvT2IsWIaU+NeIfwjhFs0hwNkvlc4FnJ0LdgDtci/iXxc1xxGOCuWKR0/lX4jHMg1XLi2U+SGNzJpKrKsrbAe55fvI4gjyQG8u5kHE/wBTzq3VeuM7k9PS4fADJyxyx52tm8tWu1ntjYwymrFIK80gDBsTyggNDgdtzZ2p+AGhda5o5jOYQXctJCyC1aiszV/XjWDZonZE9rZQPceHbDp3LDNmbiqW4jU+tNea+xeoNW5vGXcLpfEWew0/k5a1aO/JDZ7WVnLsS3ni6NOzXD2zSQNtHgqLuK3ELgJn83lMvDksroqzasyY7KT0w+ZgqOJAie0DmMji4Do4BoO4a3b0xDofCQZzN5iOly5HNVoad+btX/hoog8Rt5ebZuwlf1aATzdSdhtHstwH0Nm9OadwdvCE4/T0XY4oQ3LEU1WPkDC1szJBIQWgAguPNsN99llmyJ8o5xI/J3qn+yrX+S5SMDYAKOcSPyd6p/sq1/kuXqwO9o84+7KnXCxGe0b8i5Liz2jfkXJcZiIiICIiAiIgIiICIiAiIgIiICIiAq80L/MD/n13/VSqw1XczMhpjMzY7HYufO0rEs9thqPa19RznCSSKQyFrBu6YFg5g4tcQG7Rlx92TzGbVRe0zadOjVfqsarJCi0nstnvgZlfSqX36ey2e+BmV9Kpffr05n1R/aOq2btFpPZbPfAzK+lUvv1F7vGOtj+IWP0PYwd+LVWQqPu1scZ6vNJCzfmdzdtyjucdidyGkgbApmfVH9o6llhotJ7LZ74GZX0ql9+nstnvgZlfSqX36Zn1R/aOpZu1HOJH5O9U/wBlWv8AJcux7LZ74GZX0ql9+sWQx+e1Tj56EmElxVWaMtsOtWYjJIzY7xs7NzgHO9rzEgNDidiRsc8O2HXFdVUWib646kRabrBZ7RvyLktZhs/Xy7WRFrqWSFeKxYxdl7PXNVsnNyiRrHOA6se3mBLSWO5XHZbNcViIiICIiAiIgIiICIiAiIgIiICL45wY0ucQ1oG5J7gtDG+xqew2SOSaliIJz7URublIzF0IduS2Lmee7lc50QIPZn8IHGfIWdSiatiZZadMxwyszkXZSRSgyeXHCNyS7kad3lvKO0YW85Dg3bY3FU8PDJDRqxVIpJpLD2xMDQ6SR5fI87d7nOcST5ySs1atDSrRV68TIIImCOOKJoa1jQNg0AdAAOmyyoCIiAvzx4g+pl43Z71XVTWVbUWlaufnM2ZxcbrtoxQVKksEQgeRX84sRggAg7v3Pu/ocq/yHLNx8wHKGl1fTOR5zueZoktUeXp3bHsnf4flQWAiIgIiINbmcFBmIXDtZqVrZoZepuDJ4w17XgB2x8kuY3dpBa4dHAgkLpw5y5jrorZuGGIWrskNCxSEkkb4gznZ2/k7Qv6Pb1cWuLAQ4OkEY3y+OaHtLXAOaRsQe4oPqKMCrNoam31jBLa05SqNiZjasTprUJEnVzCXbvYI3H8GAXARAMDiQ1SSOVkrS5j2vaCW7tO43B2I/UQR+pBzREQEREBERAREQEREBEWK1P61rTTcj5ezYX8kY3c7Yb7AecoNBZEOsr1zHu5J8JUdJTyVK5j+eO690bHBjXv8l0bQ883K1wL9m8wMcjDJFodBx8mi8I7tcpMZKkcxfmz/ALbu9ocRMB0DxzbFo6AjYdAFvkBERAREQFX3DgnVeodQa435qOREWOxDt9w+jAXkTjrttLLLM4Ee2jbCfc256ltS8QsrY0pjJnR4iu8Mz+Qhc5ruXYO9ZROHdI8Edo4Hdkbths+RrmTqvXiqQRwQRshhiaGMjjaGtY0DYAAdwA8yDIiIgIiICIiAo9fqeC5tZShEGUS+W7kadeo+eaw7kA54g078/kAloa4v67DmO5kKIMdexHbrxTwvEkUrQ9jx3OaRuCsi0OBgmxeZy2O7C++kXNvQ3bdgTRudM+TtII9zzNDCwO5T0AlaGnYcrd8gIiICIiAiIgIi0uY1tp7T9oVsnnMdj7JHN2Nm0xj9vd5Sd9lnTRVXNqYvK2u3SKLeNLR3wpxHpsf1qM8S7/DbivoTM6Sz+o8VNispB2MoZfja9pBDmPad/bNe1rhv03aNwR0W3s+NwTylc2dzY6F4gaXhlqaMOpN9TUnS0his7kInZicQlw7Z8fNzvD42CVr9vKjc157yp8vzi9RTwXo8FfVE6vv6jzeLkx+Hpmticp65YIrhmcPwkZ323EbXBw72l+x+P3p40tHfCnEemx/WnZ8bgnlJmzuSlFFvGlo74U4j02P608aWjvhTiPTY/rTs+NwTykzZ3JSobns7kNQZeTTmm5ewkiLRlczy8zcewjfsotxyvsub3NO4ia4SPB3jjm1GS4jVdZ51ml9LZypA+WPnt5eKeNzoWEe0rNduJZj7uxZGOrtzysdOsHg6Gm8XDjsbWbVpw8xbG0kkuc4ue9zjuXOc5znOc4lznOJJJJK1VUVUTauLJaz5gcDQ0xiK2MxlcVqVcEMZzFxJJLnOc5xLnvc4lznuJc5ziSSSStgiLBBERAREQEREBERBHrVH/iDjbjcZPJ/uu1E/JNsbRQ/ha5bC6L85z/KcHfmiJw/OUhVMZT1QHCqHibh3y690xzwYvIQvu+EtVsNdxmp7wyR9p1kfyktcerRDIPzlc6AiIgIiICIiDpZq47H4e9aYAXwQSStB91rSR/8ACiOkqkdbAUpAOaezEyeeZ3V80jmgue4nqSSf1d3cFJ9VfixmPmc30Co9pr8XMV80i+gF0MDRhT5rsbJERZoIiICIiDq5LG1stTkrWoxJE/49i0jqHNI6tcDsQ4dQQCOq7+g8pPmtF4O9af2tmenE+WTbbndyjd23m3PXb41iWHhZ+TnTnzGL6KxxdODPhMfaei7EpREXOQREQERRvXWs4NFYgWHRizcnf2VWrzcvav7ySfM1o3JPuDYbkgHZh4dWLXFFEXmRucnlqOEqOt5G5XoVW+2ntStjYPlc4gKMS8YdHQvLTnIXEdN445Hj9oaQqPydq1ncj7IZWw6/e68skg8mIb+1jb3Mb0HQdTsCST1WNfW4XsPDin5tc38P3cvC8fHNo336b6PL9hPHNo336b6PL9hUci3fA8m4qucdC8KC4kep00nqn1Y2O1JXuRnh7kpPZjKuEUgbHYYd3wcu3N+FfynoNgHu9xe7vHNo336b6PL9hUcifA8m4qucdC8Lx8c2jffpvo8v2F9Zxk0a923s3G343wyNH7S1UaifA8m4qucdC8PS2H1BjNQ13T4vIVchE08rnVpWyBp9w7HofiK2C8sQGSlejvUp5KN+P2lquQ17fiPQhw6DyXAg7dQVevDfXw1jSmr22sgy9MNE8bPaytPdKweZpIII72kEdRsTxcu9l1ZLT7yib0+sLr1JkiIuEjV6q/FjMfM5voFR7TX4uYr5pF9AKQ6q/FjMfM5voFR7TX4uYr5pF9ALo4Pcz5/hdjvWHSMgkdCxsswaSxjncoc7boCdjt18+xXnbhbx61RjOCuY1nrzFRWK9S9bgqzY+6JrN2f2Qkrx1hD2MbWbO5I2u5jzAcxDeq9Grz3DwC1dLoHUugp8jhYsA6/Nl8DloTK65DZN4XImzxFoZyteXNJa8kjboFJvsRIG+qEn0tazNTiHpg6QtUMLLn4vWuQbkI7NaJwbK1rwxm0rXOYOTbY842cQsFfjfnZ7FXEan0dNo6bUGLt2sJZjybbTnvih7V0UoaxphlDDzgAuHku8rcLW5ngRqji5kM3e4i3MNRdPp2xp+hU086WaOHt3NdJZe+VrCXbxx7MA2AB3J713cdwo11q/VWmsjr+/gmVNNU7UNRmBMz33LE8Brunl7RrRGBGX7MbzdXnyugU/yGj0lxxzGmuGHBbGRYt2q9UarwjJmz5XLCoyR8UETpOad7Xl8rzINm7Eu2cSRsvQmPmns0K01msadmSJr5a5eH9k8gEs5h0Ox3G46HZefrHBbXzuCGB4e2KOhdRV8fUkx0kmV9ctHZsa1lWxHyscWTNAcXAefbleFdmg9P29KaJwGFv5KTMXsdQgqT5CbfnsvZGGukO5J3cQT1JPXqSrTfaN6sPCz8nOnPmMX0VmWHhZ+TnTnzGL6KuL3M+cfaV2JSiIucgiIgKguLOSdkuIliBziYsbVjgjae5rpPwjyPlHZA/8gV+qguLONdjOIc87mkRZOrHPG89znx/g3gfIOyP98Lvexc3tWnXaben4uuyUWRdfI34sXRntziUwwsL3iGF8r9h7jGAucfiAJUVHFvT5/os5/wBO5D7hfb1YlFGiqYhrTJzg1pJIAHUk+ZUnS9VBh7uQqPZBjzhLdtlSKdmagde8p/I2R1MeWGFxB9sXBp3LQp2zijp++9tXsc0e3PZ7P0/fY079OrjAAB17ydlHuH2hNXaDix+n2v0/e0zQkc2K9M2UX3V9yWsLAOTmG4HPzdw9ruvJiV111U+5q0bbWndb8qxT8br9eHKZKTSxbp7F5mTD3L/sg3tGltgQiVkXJ5Td3NJBc0jcgcwG56/EzihmJsPrmjpfCTXIMLRniu5pt8VjVnMBftCNiXvja5rjsW7HoDus+R4TZe3w61hgGWaQuZjOzZOu9z39m2J9tkwDzybh3K0jYAjfz+dYNQ8NNYV/DnH6cs4WTCaqE00gybpmTVbEsAikLeRpD2u5Wnrtsfd8+iqcozbTfTHhfb+hY+i55bWjsFNNI+aaShA98kji5znGNpJJPeSfOtwoLj9b4rRuMoYO+3KSXcfWhrTOp4W9PEXNjaCWyMhLXD4wVn8bunj/AEWd/wCnch9wvbTi4cRETVF/NEzW20VknYfXuAsscWiac0pQPz2StIA/xiN391RvC5qtn8dHdqCw2B5IAtVpa8nQ7HdkjWuHd5x1Uk0TjXZnXuArMbzNgnN2Uj8xkbSQf8ZjH95TKJonArmrVafsyp1vSCIi/MFavVX4sZj5nN9AqPaa/FzFfNIvoBSnM03ZHEXqjCA+eCSIE+YuaR/9qIaSuR2MDThB5LNaFkFiB3R8MjWgOY4HqCD+0bEdCF0MDThTHiuxuERFmgiIgIiICw8LPyc6c+YxfRWPJ5StiKj7NqURxt6Ad7nuPQNa0dXOJIAaNySQB1K2GhMXPhNGYSjaZ2dmCnEyWPffkfyjdu/n2PTf4lji6MGfGY+09V2N6iIucgiIgKOa50ZBrXDis+QVrcL+1q2uXmMT+7qOm7SNwRv3HoQQCJGi2YeJVhVxXRNpgeXcrUtafyHrDLVzj7nXla87slH9aN/c8d3d1G43DT0WNenMli6WZqPq36kF6s/20NmJsjD8rSCFGJeEGjpXFxwNdpPXaNz2D9gIC+twvbmHNPzaJv4fstCikV5eJvRvvHF+9k+0nib0b7xxfvZPtLd8cybhq5R1LQo1FeXib0b7xxfvZPtJ4m9G+8cX72T7SfHMm4auUdS0KNRXl4m9G+8cX72T7S+s4O6NY7f2Cgd8T3vcP2F2yfHMm4auUdS0b1F1hLkLzKNGCS/ff7WrXAc8/GeuzR1HlOIA36lXtw40ENG0Zp7T2T5e3ymeRntI2j2sTD3loJJ3PVxJOwGzWyLEYLG4CuYMZQrY+EncsrRNjDj7p2HU/GV31xMu9qVZXT7uiLU+srq1CIi4aC0uY0Vp/UNgWMpg8bkZwOUS2qkcjwPc3cCdlukWVNdVE3pm0mpFvFXoz4J4T+HxfZTxV6M+CeE/h8X2VKUW7tGNxzzlbzvRbxV6M+CeE/h8X2U8VejPgnhP4fF9lSlE7Rjcc85LzvRbxV6M+CeE/h8X2U8VejPgnhP4fF9lSlE7Rjcc85LzvaPFaG05grLbOOwGMoWG78s1apHG9u/fsQNxut4iLVVXVXN6pumsREWAIiICIiAiIgIiICIiAiIgIiICIiD/2Q==" /></p>
+<p>When you try to call the tool, you can see that the model calls the tool with a bad input, causing the tool to throw an error. The prebuilt <code>ToolNode</code> that executes the tool has some built-in error handling that captures the error and passes it back to the model so that it can try again:</p>
+<p><div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">response</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="s2">&quot;human&quot;</span><span class="p">,</span> <span class="s2">&quot;what is the weather in san francisco?&quot;</span><span class="p">)]},</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="p">)</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">]:</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">string_representation</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">string_representation</span><span class="p">)</span>
+</span></code></pre></div>
+<div class="language-output highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="go">HUMAN: what is the weather in san francisco?</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="go">AI: [{&#39;id&#39;: &#39;toolu_01K5tXKVRbETcs7Q8U9PHy96&#39;, &#39;input&#39;: {&#39;location&#39;: &#39;san francisco&#39;}, &#39;name&#39;: &#39;get_weather&#39;, &#39;type&#39;: &#39;tool_use&#39;}]</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="go">TOOL: Error: ValueError(&#39;Input queries must be proper nouns&#39;)</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="go"> Please fix your mistakes.</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="go">AI: [{&#39;text&#39;: &#39;Apologies, it looks like there was an issue with the weather lookup. Let me try that again with the proper format:&#39;, &#39;type&#39;: &#39;text&#39;}, {&#39;id&#39;: &#39;toolu_01KSCsme3Du2NBazSJQ1af4b&#39;, &#39;input&#39;: {&#39;location&#39;: &#39;San Francisco&#39;}, &#39;name&#39;: &#39;get_weather&#39;, &#39;type&#39;: &#39;tool_use&#39;}]</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="go">TOOL: It&#39;s 60 degrees and foggy.</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="go">AI: The current weather in San Francisco is 60 degrees and foggy.</span>
+</span></code></pre></div></p>
+<h2 id="custom-strategies">Custom strategies<a class="headerlink" href="#custom-strategies" title="Permanent link">&para;</a></h2>
+<p>This is a fine default in many cases, but there are cases where custom fallbacks may be better.</p>
+<p>For example, the below tool requires as input a list of elements of a specific length - tricky for a small model! We'll also intentionally avoid pluralizing <code>topic</code> to trick the model into thinking it should pass a string:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.output_parsers</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrOutputParser</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="k">class</span><span class="w"> </span><span class="nc">HaikuRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="n">topic</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>        <span class="n">max_length</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>        <span class="n">min_length</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    <span class="p">)</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="nd">@tool</span>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="k">def</span><span class="w"> </span><span class="nf">master_haiku_generator</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">HaikuRequest</span><span class="p">):</span>
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates a haiku based on the provided topics.&quot;&quot;&quot;</span>
+</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>    <span class="n">model</span> <span class="o">=</span> <span class="n">ChatAnthropic</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;claude-3-haiku-20240307&quot;</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>    <span class="n">chain</span> <span class="o">=</span> <span class="n">model</span> <span class="o">|</span> <span class="n">StrOutputParser</span><span class="p">()</span>
+</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>    <span class="n">topics</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">topic</span><span class="p">)</span>
+</span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>    <span class="n">haiku</span> <span class="o">=</span> <span class="n">chain</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Write a haiku about </span><span class="si">{</span><span class="n">topics</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-7-19"><a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>    <span class="k">return</span> <span class="n">haiku</span>
+</span><span id="__span-7-20"><a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a>
+</span><span id="__span-7-21"><a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a>
+</span><span id="__span-7-22"><a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a><span class="n">tool_node</span> <span class="o">=</span> <span class="n">ToolNode</span><span class="p">([</span><span class="n">master_haiku_generator</span><span class="p">])</span>
+</span><span id="__span-7-23"><a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a>
+</span><span id="__span-7-24"><a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a><span class="n">model</span> <span class="o">=</span> <span class="n">ChatAnthropic</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;claude-3-haiku-20240307&quot;</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="__span-7-25"><a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a><span class="n">model_with_tools</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">bind_tools</span><span class="p">([</span><span class="n">master_haiku_generator</span><span class="p">])</span>
+</span><span id="__span-7-26"><a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a>
+</span><span id="__span-7-27"><a id="__codelineno-7-27" name="__codelineno-7-27" href="#__codelineno-7-27"></a>
+</span><span id="__span-7-28"><a id="__codelineno-7-28" name="__codelineno-7-28" href="#__codelineno-7-28"></a><span class="k">def</span><span class="w"> </span><span class="nf">should_continue</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">MessagesState</span><span class="p">):</span>
+</span><span id="__span-7-29"><a id="__codelineno-7-29" name="__codelineno-7-29" href="#__codelineno-7-29"></a>    <span class="n">messages</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">]</span>
+</span><span id="__span-7-30"><a id="__codelineno-7-30" name="__codelineno-7-30" href="#__codelineno-7-30"></a>    <span class="n">last_message</span> <span class="o">=</span> <span class="n">messages</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</span><span id="__span-7-31"><a id="__codelineno-7-31" name="__codelineno-7-31" href="#__codelineno-7-31"></a>    <span class="k">if</span> <span class="n">last_message</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">:</span>
+</span><span id="__span-7-32"><a id="__codelineno-7-32" name="__codelineno-7-32" href="#__codelineno-7-32"></a>        <span class="k">return</span> <span class="s2">&quot;tools&quot;</span>
+</span><span id="__span-7-33"><a id="__codelineno-7-33" name="__codelineno-7-33" href="#__codelineno-7-33"></a>    <span class="k">return</span> <span class="n">END</span>
+</span><span id="__span-7-34"><a id="__codelineno-7-34" name="__codelineno-7-34" href="#__codelineno-7-34"></a>
+</span><span id="__span-7-35"><a id="__codelineno-7-35" name="__codelineno-7-35" href="#__codelineno-7-35"></a>
+</span><span id="__span-7-36"><a id="__codelineno-7-36" name="__codelineno-7-36" href="#__codelineno-7-36"></a><span class="k">def</span><span class="w"> </span><span class="nf">call_model</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">MessagesState</span><span class="p">):</span>
+</span><span id="__span-7-37"><a id="__codelineno-7-37" name="__codelineno-7-37" href="#__codelineno-7-37"></a>    <span class="n">messages</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">]</span>
+</span><span id="__span-7-38"><a id="__codelineno-7-38" name="__codelineno-7-38" href="#__codelineno-7-38"></a>    <span class="n">response</span> <span class="o">=</span> <span class="n">model_with_tools</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+</span><span id="__span-7-39"><a id="__codelineno-7-39" name="__codelineno-7-39" href="#__codelineno-7-39"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">response</span><span class="p">]}</span>
+</span><span id="__span-7-40"><a id="__codelineno-7-40" name="__codelineno-7-40" href="#__codelineno-7-40"></a>
+</span><span id="__span-7-41"><a id="__codelineno-7-41" name="__codelineno-7-41" href="#__codelineno-7-41"></a>
+</span><span id="__span-7-42"><a id="__codelineno-7-42" name="__codelineno-7-42" href="#__codelineno-7-42"></a><span class="n">workflow</span> <span class="o">=</span> <span class="n">StateGraph</span><span class="p">(</span><span class="n">MessagesState</span><span class="p">)</span>
+</span><span id="__span-7-43"><a id="__codelineno-7-43" name="__codelineno-7-43" href="#__codelineno-7-43"></a>
+</span><span id="__span-7-44"><a id="__codelineno-7-44" name="__codelineno-7-44" href="#__codelineno-7-44"></a><span class="c1"># Define the two nodes we will cycle between</span>
+</span><span id="__span-7-45"><a id="__codelineno-7-45" name="__codelineno-7-45" href="#__codelineno-7-45"></a><span class="n">workflow</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;agent&quot;</span><span class="p">,</span> <span class="n">call_model</span><span class="p">)</span>
+</span><span id="__span-7-46"><a id="__codelineno-7-46" name="__codelineno-7-46" href="#__codelineno-7-46"></a><span class="n">workflow</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;tools&quot;</span><span class="p">,</span> <span class="n">tool_node</span><span class="p">)</span>
+</span><span id="__span-7-47"><a id="__codelineno-7-47" name="__codelineno-7-47" href="#__codelineno-7-47"></a>
+</span><span id="__span-7-48"><a id="__codelineno-7-48" name="__codelineno-7-48" href="#__codelineno-7-48"></a><span class="n">workflow</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">START</span><span class="p">,</span> <span class="s2">&quot;agent&quot;</span><span class="p">)</span>
+</span><span id="__span-7-49"><a id="__codelineno-7-49" name="__codelineno-7-49" href="#__codelineno-7-49"></a><span class="n">workflow</span><span class="o">.</span><span class="n">add_conditional_edges</span><span class="p">(</span><span class="s2">&quot;agent&quot;</span><span class="p">,</span> <span class="n">should_continue</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;tools&quot;</span><span class="p">,</span> <span class="n">END</span><span class="p">])</span>
+</span><span id="__span-7-50"><a id="__codelineno-7-50" name="__codelineno-7-50" href="#__codelineno-7-50"></a><span class="n">workflow</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;tools&quot;</span><span class="p">,</span> <span class="s2">&quot;agent&quot;</span><span class="p">)</span>
+</span><span id="__span-7-51"><a id="__codelineno-7-51" name="__codelineno-7-51" href="#__codelineno-7-51"></a>
+</span><span id="__span-7-52"><a id="__codelineno-7-52" name="__codelineno-7-52" href="#__codelineno-7-52"></a><span class="n">app</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+</span><span id="__span-7-53"><a id="__codelineno-7-53" name="__codelineno-7-53" href="#__codelineno-7-53"></a>
+</span><span id="__span-7-54"><a id="__codelineno-7-54" name="__codelineno-7-54" href="#__codelineno-7-54"></a><span class="n">response</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span>
+</span><span id="__span-7-55"><a id="__codelineno-7-55" name="__codelineno-7-55" href="#__codelineno-7-55"></a>    <span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="s2">&quot;human&quot;</span><span class="p">,</span> <span class="s2">&quot;Write me an incredible haiku about water.&quot;</span><span class="p">)]},</span>
+</span><span id="__span-7-56"><a id="__codelineno-7-56" name="__codelineno-7-56" href="#__codelineno-7-56"></a>    <span class="p">{</span><span class="s2">&quot;recursion_limit&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
+</span><span id="__span-7-57"><a id="__codelineno-7-57" name="__codelineno-7-57" href="#__codelineno-7-57"></a><span class="p">)</span>
+</span><span id="__span-7-58"><a id="__codelineno-7-58" name="__codelineno-7-58" href="#__codelineno-7-58"></a>
+</span><span id="__span-7-59"><a id="__codelineno-7-59" name="__codelineno-7-59" href="#__codelineno-7-59"></a><span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">]:</span>
+</span><span id="__span-7-60"><a id="__codelineno-7-60" name="__codelineno-7-60" href="#__codelineno-7-60"></a>    <span class="n">string_representation</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span id="__span-7-61"><a id="__codelineno-7-61" name="__codelineno-7-61" href="#__codelineno-7-61"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">string_representation</span><span class="p">)</span>
+</span></code></pre></div>
+<p>API Reference: <a href="https://python.langchain.com/api_reference/core/output_parsers/langchain_core.output_parsers.string.StrOutputParser.html">StrOutputParser</a>
+<div class="language-output highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="go">HUMAN: Write me an incredible haiku about water.</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="go">AI: [{&#39;text&#39;: &#39;Here is a haiku about water:&#39;, &#39;type&#39;: &#39;text&#39;}, {&#39;id&#39;: &#39;toolu_01L13Z3Gtaym5KKgPXVyZhYn&#39;, &#39;input&#39;: {&#39;topic&#39;: [&#39;water&#39;]}, &#39;name&#39;: &#39;master_haiku_generator&#39;, &#39;type&#39;: &#39;tool_use&#39;}]</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="go">TOOL: Error: 1 validation error for master_haiku_generator</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="go">request</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="go">  Field required [type=missing, input_value={&#39;topic&#39;: [&#39;water&#39;]}, input_type=dict]</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="go">    For further information visit https://errors.pydantic.dev/2.7/v/missing</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="go"> Please fix your mistakes.</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="go">AI: [{&#39;text&#39;: &#39;Oops, my apologies. Let me try that again with the correct format:&#39;, &#39;type&#39;: &#39;text&#39;}, {&#39;id&#39;: &#39;toolu_01HCQ5uXr5kXQHBQ3FyQ1Ysk&#39;, &#39;input&#39;: {&#39;topic&#39;: [&#39;water&#39;]}, &#39;name&#39;: &#39;master_haiku_generator&#39;, &#39;type&#39;: &#39;tool_use&#39;}]</span>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="go">TOOL: Error: 1 validation error for master_haiku_generator</span>
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="go">request</span>
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="go">  Field required [type=missing, input_value={&#39;topic&#39;: [&#39;water&#39;]}, input_type=dict]</span>
+</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="go">    For further information visit https://errors.pydantic.dev/2.7/v/missing</span>
+</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="go"> Please fix your mistakes.</span>
+</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>
+</span><span id="__span-8-19"><a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="go">AI: [{&#39;text&#39;: &#39;Hmm, it seems there was an issue with the input format. Let me try a different approach:&#39;, &#39;type&#39;: &#39;text&#39;}, {&#39;id&#39;: &#39;toolu_01RF96nruwr4nMqhLBRsbfE5&#39;, &#39;input&#39;: {&#39;request&#39;: {&#39;topic&#39;: [&#39;water&#39;]}}, &#39;name&#39;: &#39;master_haiku_generator&#39;, &#39;type&#39;: &#39;tool_use&#39;}]</span>
+</span><span id="__span-8-20"><a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a>
+</span><span id="__span-8-21"><a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a><span class="go">TOOL: Error: 1 validation error for master_haiku_generator</span>
+</span><span id="__span-8-22"><a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a><span class="go">request.topic</span>
+</span><span id="__span-8-23"><a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a><span class="go">  List should have at least 3 items after validation, not 1 [type=too_short, input_value=[&#39;water&#39;], input_type=list]</span>
+</span><span id="__span-8-24"><a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a><span class="go">    For further information visit https://errors.pydantic.dev/2.7/v/too_short</span>
+</span><span id="__span-8-25"><a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a><span class="go"> Please fix your mistakes.</span>
+</span><span id="__span-8-26"><a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a>
+</span><span id="__span-8-27"><a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a><span class="go">AI: [{&#39;text&#39;: &#39;Ah I see, the haiku generator requires at least 3 topics. Let me provide 3 topics related to water:&#39;, &#39;type&#39;: &#39;text&#39;}, {&#39;id&#39;: &#39;toolu_011jcgHuG2Kyr87By459huqQ&#39;, &#39;input&#39;: {&#39;request&#39;: {&#39;topic&#39;: [&#39;ocean&#39;, &#39;rain&#39;, &#39;river&#39;]}}, &#39;name&#39;: &#39;master_haiku_generator&#39;, &#39;type&#39;: &#39;tool_use&#39;}]</span>
+</span><span id="__span-8-28"><a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a>
+</span><span id="__span-8-29"><a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a><span class="go">TOOL: Here is a haiku about ocean, rain, and river:</span>
+</span><span id="__span-8-30"><a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a>
+</span><span id="__span-8-31"><a id="__codelineno-8-31" name="__codelineno-8-31" href="#__codelineno-8-31"></a><span class="go">Vast ocean&#39;s embrace,</span>
+</span><span id="__span-8-32"><a id="__codelineno-8-32" name="__codelineno-8-32" href="#__codelineno-8-32"></a><span class="go">Raindrops caress the river,</span>
+</span><span id="__span-8-33"><a id="__codelineno-8-33" name="__codelineno-8-33" href="#__codelineno-8-33"></a><span class="go">Nature&#39;s symphony.</span>
+</span><span id="__span-8-34"><a id="__codelineno-8-34" name="__codelineno-8-34" href="#__codelineno-8-34"></a>
+</span><span id="__span-8-35"><a id="__codelineno-8-35" name="__codelineno-8-35" href="#__codelineno-8-35"></a><span class="go">AI: I hope this haiku about water captures the essence you were looking for! Let me know if you would like me to generate another one.</span>
+</span></code></pre></div>
+We can see that the model takes two tries to get the input correct.</p>
+<p>A better strategy might be to trim the failed attempt to reduce distraction, then fall back to a more advanced model. Here's an example. We also use a custom-built node to call our tools instead of the prebuilt <code>ToolNode</code>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">AIMessage</span><span class="p">,</span> <span class="n">ToolMessage</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.messages.modifier</span><span class="w"> </span><span class="kn">import</span> <span class="n">RemoveMessage</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="nd">@tool</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="k">def</span><span class="w"> </span><span class="nf">master_haiku_generator</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">HaikuRequest</span><span class="p">):</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates a haiku based on the provided topics.&quot;&quot;&quot;</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>    <span class="n">model</span> <span class="o">=</span> <span class="n">ChatAnthropic</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;claude-3-haiku-20240307&quot;</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>    <span class="n">chain</span> <span class="o">=</span> <span class="n">model</span> <span class="o">|</span> <span class="n">StrOutputParser</span><span class="p">()</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>    <span class="n">topics</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">topic</span><span class="p">)</span>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>    <span class="n">haiku</span> <span class="o">=</span> <span class="n">chain</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Write a haiku about </span><span class="si">{</span><span class="n">topics</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>    <span class="k">return</span> <span class="n">haiku</span>
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>
+</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="k">def</span><span class="w"> </span><span class="nf">call_tool</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">MessagesState</span><span class="p">):</span>
+</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>    <span class="n">tools_by_name</span> <span class="o">=</span> <span class="p">{</span><span class="n">master_haiku_generator</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">master_haiku_generator</span><span class="p">}</span>
+</span><span id="__span-9-19"><a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>    <span class="n">messages</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">]</span>
+</span><span id="__span-9-20"><a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>    <span class="n">last_message</span> <span class="o">=</span> <span class="n">messages</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</span><span id="__span-9-21"><a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>    <span class="n">output_messages</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-9-22"><a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>    <span class="k">for</span> <span class="n">tool_call</span> <span class="ow">in</span> <span class="n">last_message</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">:</span>
+</span><span id="__span-9-23"><a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>        <span class="k">try</span><span class="p">:</span>
+</span><span id="__span-9-24"><a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>            <span class="n">tool_result</span> <span class="o">=</span> <span class="n">tools_by_name</span><span class="p">[</span><span class="n">tool_call</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">tool_call</span><span class="p">[</span><span class="s2">&quot;args&quot;</span><span class="p">])</span>
+</span><span id="__span-9-25"><a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a>            <span class="n">output_messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+</span><span id="__span-9-26"><a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a>                <span class="n">ToolMessage</span><span class="p">(</span>
+</span><span id="__span-9-27"><a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a>                    <span class="n">content</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">tool_result</span><span class="p">),</span>
+</span><span id="__span-9-28"><a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a>                    <span class="n">name</span><span class="o">=</span><span class="n">tool_call</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+</span><span id="__span-9-29"><a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a>                    <span class="n">tool_call_id</span><span class="o">=</span><span class="n">tool_call</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span>
+</span><span id="__span-9-30"><a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a>                <span class="p">)</span>
+</span><span id="__span-9-31"><a id="__codelineno-9-31" name="__codelineno-9-31" href="#__codelineno-9-31"></a>            <span class="p">)</span>
+</span><span id="__span-9-32"><a id="__codelineno-9-32" name="__codelineno-9-32" href="#__codelineno-9-32"></a>        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span><span id="__span-9-33"><a id="__codelineno-9-33" name="__codelineno-9-33" href="#__codelineno-9-33"></a>            <span class="c1"># Return the error if the tool call fails</span>
+</span><span id="__span-9-34"><a id="__codelineno-9-34" name="__codelineno-9-34" href="#__codelineno-9-34"></a>            <span class="n">output_messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+</span><span id="__span-9-35"><a id="__codelineno-9-35" name="__codelineno-9-35" href="#__codelineno-9-35"></a>                <span class="n">ToolMessage</span><span class="p">(</span>
+</span><span id="__span-9-36"><a id="__codelineno-9-36" name="__codelineno-9-36" href="#__codelineno-9-36"></a>                    <span class="n">content</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+</span><span id="__span-9-37"><a id="__codelineno-9-37" name="__codelineno-9-37" href="#__codelineno-9-37"></a>                    <span class="n">name</span><span class="o">=</span><span class="n">tool_call</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+</span><span id="__span-9-38"><a id="__codelineno-9-38" name="__codelineno-9-38" href="#__codelineno-9-38"></a>                    <span class="n">tool_call_id</span><span class="o">=</span><span class="n">tool_call</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span>
+</span><span id="__span-9-39"><a id="__codelineno-9-39" name="__codelineno-9-39" href="#__codelineno-9-39"></a>                    <span class="n">additional_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="n">e</span><span class="p">},</span>
+</span><span id="__span-9-40"><a id="__codelineno-9-40" name="__codelineno-9-40" href="#__codelineno-9-40"></a>                <span class="p">)</span>
+</span><span id="__span-9-41"><a id="__codelineno-9-41" name="__codelineno-9-41" href="#__codelineno-9-41"></a>            <span class="p">)</span>
+</span><span id="__span-9-42"><a id="__codelineno-9-42" name="__codelineno-9-42" href="#__codelineno-9-42"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="n">output_messages</span><span class="p">}</span>
+</span><span id="__span-9-43"><a id="__codelineno-9-43" name="__codelineno-9-43" href="#__codelineno-9-43"></a>
+</span><span id="__span-9-44"><a id="__codelineno-9-44" name="__codelineno-9-44" href="#__codelineno-9-44"></a>
+</span><span id="__span-9-45"><a id="__codelineno-9-45" name="__codelineno-9-45" href="#__codelineno-9-45"></a><span class="n">model</span> <span class="o">=</span> <span class="n">ChatAnthropic</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;claude-3-haiku-20240307&quot;</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="__span-9-46"><a id="__codelineno-9-46" name="__codelineno-9-46" href="#__codelineno-9-46"></a><span class="n">model_with_tools</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">bind_tools</span><span class="p">([</span><span class="n">master_haiku_generator</span><span class="p">])</span>
+</span><span id="__span-9-47"><a id="__codelineno-9-47" name="__codelineno-9-47" href="#__codelineno-9-47"></a>
+</span><span id="__span-9-48"><a id="__codelineno-9-48" name="__codelineno-9-48" href="#__codelineno-9-48"></a><span class="n">better_model</span> <span class="o">=</span> <span class="n">ChatAnthropic</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;claude-3-5-sonnet-20240620&quot;</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="__span-9-49"><a id="__codelineno-9-49" name="__codelineno-9-49" href="#__codelineno-9-49"></a><span class="n">better_model_with_tools</span> <span class="o">=</span> <span class="n">better_model</span><span class="o">.</span><span class="n">bind_tools</span><span class="p">([</span><span class="n">master_haiku_generator</span><span class="p">])</span>
+</span><span id="__span-9-50"><a id="__codelineno-9-50" name="__codelineno-9-50" href="#__codelineno-9-50"></a>
+</span><span id="__span-9-51"><a id="__codelineno-9-51" name="__codelineno-9-51" href="#__codelineno-9-51"></a>
+</span><span id="__span-9-52"><a id="__codelineno-9-52" name="__codelineno-9-52" href="#__codelineno-9-52"></a><span class="k">def</span><span class="w"> </span><span class="nf">should_continue</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">MessagesState</span><span class="p">):</span>
+</span><span id="__span-9-53"><a id="__codelineno-9-53" name="__codelineno-9-53" href="#__codelineno-9-53"></a>    <span class="n">messages</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">]</span>
+</span><span id="__span-9-54"><a id="__codelineno-9-54" name="__codelineno-9-54" href="#__codelineno-9-54"></a>    <span class="n">last_message</span> <span class="o">=</span> <span class="n">messages</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</span><span id="__span-9-55"><a id="__codelineno-9-55" name="__codelineno-9-55" href="#__codelineno-9-55"></a>    <span class="k">if</span> <span class="n">last_message</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">:</span>
+</span><span id="__span-9-56"><a id="__codelineno-9-56" name="__codelineno-9-56" href="#__codelineno-9-56"></a>        <span class="k">return</span> <span class="s2">&quot;tools&quot;</span>
+</span><span id="__span-9-57"><a id="__codelineno-9-57" name="__codelineno-9-57" href="#__codelineno-9-57"></a>    <span class="k">return</span> <span class="n">END</span>
+</span><span id="__span-9-58"><a id="__codelineno-9-58" name="__codelineno-9-58" href="#__codelineno-9-58"></a>
+</span><span id="__span-9-59"><a id="__codelineno-9-59" name="__codelineno-9-59" href="#__codelineno-9-59"></a>
+</span><span id="__span-9-60"><a id="__codelineno-9-60" name="__codelineno-9-60" href="#__codelineno-9-60"></a><span class="k">def</span><span class="w"> </span><span class="nf">should_fallback</span><span class="p">(</span>
+</span><span id="__span-9-61"><a id="__codelineno-9-61" name="__codelineno-9-61" href="#__codelineno-9-61"></a>    <span class="n">state</span><span class="p">:</span> <span class="n">MessagesState</span><span class="p">,</span>
+</span><span id="__span-9-62"><a id="__codelineno-9-62" name="__codelineno-9-62" href="#__codelineno-9-62"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;agent&quot;</span><span class="p">,</span> <span class="s2">&quot;remove_failed_tool_call_attempt&quot;</span><span class="p">]:</span>
+</span><span id="__span-9-63"><a id="__codelineno-9-63" name="__codelineno-9-63" href="#__codelineno-9-63"></a>    <span class="n">messages</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">]</span>
+</span><span id="__span-9-64"><a id="__codelineno-9-64" name="__codelineno-9-64" href="#__codelineno-9-64"></a>    <span class="n">failed_tool_messages</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-9-65"><a id="__codelineno-9-65" name="__codelineno-9-65" href="#__codelineno-9-65"></a>        <span class="n">msg</span>
+</span><span id="__span-9-66"><a id="__codelineno-9-66" name="__codelineno-9-66" href="#__codelineno-9-66"></a>        <span class="k">for</span> <span class="n">msg</span> <span class="ow">in</span> <span class="n">messages</span>
+</span><span id="__span-9-67"><a id="__codelineno-9-67" name="__codelineno-9-67" href="#__codelineno-9-67"></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">ToolMessage</span><span class="p">)</span>
+</span><span id="__span-9-68"><a id="__codelineno-9-68" name="__codelineno-9-68" href="#__codelineno-9-68"></a>        <span class="ow">and</span> <span class="n">msg</span><span class="o">.</span><span class="n">additional_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+</span><span id="__span-9-69"><a id="__codelineno-9-69" name="__codelineno-9-69" href="#__codelineno-9-69"></a>    <span class="p">]</span>
+</span><span id="__span-9-70"><a id="__codelineno-9-70" name="__codelineno-9-70" href="#__codelineno-9-70"></a>    <span class="k">if</span> <span class="n">failed_tool_messages</span><span class="p">:</span>
+</span><span id="__span-9-71"><a id="__codelineno-9-71" name="__codelineno-9-71" href="#__codelineno-9-71"></a>        <span class="k">return</span> <span class="s2">&quot;remove_failed_tool_call_attempt&quot;</span>
+</span><span id="__span-9-72"><a id="__codelineno-9-72" name="__codelineno-9-72" href="#__codelineno-9-72"></a>    <span class="k">return</span> <span class="s2">&quot;agent&quot;</span>
+</span><span id="__span-9-73"><a id="__codelineno-9-73" name="__codelineno-9-73" href="#__codelineno-9-73"></a>
+</span><span id="__span-9-74"><a id="__codelineno-9-74" name="__codelineno-9-74" href="#__codelineno-9-74"></a>
+</span><span id="__span-9-75"><a id="__codelineno-9-75" name="__codelineno-9-75" href="#__codelineno-9-75"></a><span class="k">def</span><span class="w"> </span><span class="nf">call_model</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">MessagesState</span><span class="p">):</span>
+</span><span id="__span-9-76"><a id="__codelineno-9-76" name="__codelineno-9-76" href="#__codelineno-9-76"></a>    <span class="n">messages</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">]</span>
+</span><span id="__span-9-77"><a id="__codelineno-9-77" name="__codelineno-9-77" href="#__codelineno-9-77"></a>    <span class="n">response</span> <span class="o">=</span> <span class="n">model_with_tools</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+</span><span id="__span-9-78"><a id="__codelineno-9-78" name="__codelineno-9-78" href="#__codelineno-9-78"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">response</span><span class="p">]}</span>
+</span><span id="__span-9-79"><a id="__codelineno-9-79" name="__codelineno-9-79" href="#__codelineno-9-79"></a>
+</span><span id="__span-9-80"><a id="__codelineno-9-80" name="__codelineno-9-80" href="#__codelineno-9-80"></a>
+</span><span id="__span-9-81"><a id="__codelineno-9-81" name="__codelineno-9-81" href="#__codelineno-9-81"></a><span class="k">def</span><span class="w"> </span><span class="nf">remove_failed_tool_call_attempt</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">MessagesState</span><span class="p">):</span>
+</span><span id="__span-9-82"><a id="__codelineno-9-82" name="__codelineno-9-82" href="#__codelineno-9-82"></a>    <span class="n">messages</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">]</span>
+</span><span id="__span-9-83"><a id="__codelineno-9-83" name="__codelineno-9-83" href="#__codelineno-9-83"></a>    <span class="c1"># Remove all messages from the most recent</span>
+</span><span id="__span-9-84"><a id="__codelineno-9-84" name="__codelineno-9-84" href="#__codelineno-9-84"></a>    <span class="c1"># instance of AIMessage onwards.</span>
+</span><span id="__span-9-85"><a id="__codelineno-9-85" name="__codelineno-9-85" href="#__codelineno-9-85"></a>    <span class="n">last_ai_message_index</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+</span><span id="__span-9-86"><a id="__codelineno-9-86" name="__codelineno-9-86" href="#__codelineno-9-86"></a>        <span class="n">i</span>
+</span><span id="__span-9-87"><a id="__codelineno-9-87" name="__codelineno-9-87" href="#__codelineno-9-87"></a>        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">msg</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">messages</span><span class="p">)))</span>
+</span><span id="__span-9-88"><a id="__codelineno-9-88" name="__codelineno-9-88" href="#__codelineno-9-88"></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">AIMessage</span><span class="p">)</span>
+</span><span id="__span-9-89"><a id="__codelineno-9-89" name="__codelineno-9-89" href="#__codelineno-9-89"></a>    <span class="p">)</span>
+</span><span id="__span-9-90"><a id="__codelineno-9-90" name="__codelineno-9-90" href="#__codelineno-9-90"></a>    <span class="n">messages_to_remove</span> <span class="o">=</span> <span class="n">messages</span><span class="p">[</span><span class="n">last_ai_message_index</span><span class="p">:]</span>
+</span><span id="__span-9-91"><a id="__codelineno-9-91" name="__codelineno-9-91" href="#__codelineno-9-91"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">RemoveMessage</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">messages_to_remove</span><span class="p">]}</span>
+</span><span id="__span-9-92"><a id="__codelineno-9-92" name="__codelineno-9-92" href="#__codelineno-9-92"></a>
+</span><span id="__span-9-93"><a id="__codelineno-9-93" name="__codelineno-9-93" href="#__codelineno-9-93"></a>
+</span><span id="__span-9-94"><a id="__codelineno-9-94" name="__codelineno-9-94" href="#__codelineno-9-94"></a><span class="c1"># Fallback to a better model if a tool call fails</span>
+</span><span id="__span-9-95"><a id="__codelineno-9-95" name="__codelineno-9-95" href="#__codelineno-9-95"></a><span class="k">def</span><span class="w"> </span><span class="nf">call_fallback_model</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">MessagesState</span><span class="p">):</span>
+</span><span id="__span-9-96"><a id="__codelineno-9-96" name="__codelineno-9-96" href="#__codelineno-9-96"></a>    <span class="n">messages</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">]</span>
+</span><span id="__span-9-97"><a id="__codelineno-9-97" name="__codelineno-9-97" href="#__codelineno-9-97"></a>    <span class="n">response</span> <span class="o">=</span> <span class="n">better_model_with_tools</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+</span><span id="__span-9-98"><a id="__codelineno-9-98" name="__codelineno-9-98" href="#__codelineno-9-98"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">response</span><span class="p">]}</span>
+</span><span id="__span-9-99"><a id="__codelineno-9-99" name="__codelineno-9-99" href="#__codelineno-9-99"></a>
+</span><span id="__span-9-100"><a id="__codelineno-9-100" name="__codelineno-9-100" href="#__codelineno-9-100"></a>
+</span><span id="__span-9-101"><a id="__codelineno-9-101" name="__codelineno-9-101" href="#__codelineno-9-101"></a><span class="n">workflow</span> <span class="o">=</span> <span class="n">StateGraph</span><span class="p">(</span><span class="n">MessagesState</span><span class="p">)</span>
+</span><span id="__span-9-102"><a id="__codelineno-9-102" name="__codelineno-9-102" href="#__codelineno-9-102"></a>
+</span><span id="__span-9-103"><a id="__codelineno-9-103" name="__codelineno-9-103" href="#__codelineno-9-103"></a><span class="n">workflow</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;agent&quot;</span><span class="p">,</span> <span class="n">call_model</span><span class="p">)</span>
+</span><span id="__span-9-104"><a id="__codelineno-9-104" name="__codelineno-9-104" href="#__codelineno-9-104"></a><span class="n">workflow</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;tools&quot;</span><span class="p">,</span> <span class="n">call_tool</span><span class="p">)</span>
+</span><span id="__span-9-105"><a id="__codelineno-9-105" name="__codelineno-9-105" href="#__codelineno-9-105"></a><span class="n">workflow</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;remove_failed_tool_call_attempt&quot;</span><span class="p">,</span> <span class="n">remove_failed_tool_call_attempt</span><span class="p">)</span>
+</span><span id="__span-9-106"><a id="__codelineno-9-106" name="__codelineno-9-106" href="#__codelineno-9-106"></a><span class="n">workflow</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;fallback_agent&quot;</span><span class="p">,</span> <span class="n">call_fallback_model</span><span class="p">)</span>
+</span><span id="__span-9-107"><a id="__codelineno-9-107" name="__codelineno-9-107" href="#__codelineno-9-107"></a>
+</span><span id="__span-9-108"><a id="__codelineno-9-108" name="__codelineno-9-108" href="#__codelineno-9-108"></a><span class="n">workflow</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">START</span><span class="p">,</span> <span class="s2">&quot;agent&quot;</span><span class="p">)</span>
+</span><span id="__span-9-109"><a id="__codelineno-9-109" name="__codelineno-9-109" href="#__codelineno-9-109"></a><span class="n">workflow</span><span class="o">.</span><span class="n">add_conditional_edges</span><span class="p">(</span><span class="s2">&quot;agent&quot;</span><span class="p">,</span> <span class="n">should_continue</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;tools&quot;</span><span class="p">,</span> <span class="n">END</span><span class="p">])</span>
+</span><span id="__span-9-110"><a id="__codelineno-9-110" name="__codelineno-9-110" href="#__codelineno-9-110"></a><span class="n">workflow</span><span class="o">.</span><span class="n">add_conditional_edges</span><span class="p">(</span><span class="s2">&quot;tools&quot;</span><span class="p">,</span> <span class="n">should_fallback</span><span class="p">)</span>
+</span><span id="__span-9-111"><a id="__codelineno-9-111" name="__codelineno-9-111" href="#__codelineno-9-111"></a><span class="n">workflow</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;remove_failed_tool_call_attempt&quot;</span><span class="p">,</span> <span class="s2">&quot;fallback_agent&quot;</span><span class="p">)</span>
+</span><span id="__span-9-112"><a id="__codelineno-9-112" name="__codelineno-9-112" href="#__codelineno-9-112"></a><span class="n">workflow</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;fallback_agent&quot;</span><span class="p">,</span> <span class="s2">&quot;tools&quot;</span><span class="p">)</span>
+</span><span id="__span-9-113"><a id="__codelineno-9-113" name="__codelineno-9-113" href="#__codelineno-9-113"></a>
+</span><span id="__span-9-114"><a id="__codelineno-9-114" name="__codelineno-9-114" href="#__codelineno-9-114"></a><span class="n">app</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+</span></code></pre></div>
+<p>API Reference: <a href="https://python.langchain.com/api_reference/core/messages/langchain_core.messages.ai.AIMessage.html">AIMessage</a> | <a href="https://python.langchain.com/api_reference/core/messages/langchain_core.messages.tool.ToolMessage.html">ToolMessage</a> | <a href="https://python.langchain.com/api_reference/core/messages/langchain_core.messages.modifier.RemoveMessage.html">RemoveMessage</a></p>
+<p>The <code>tools</code> node will now return <code>ToolMessage</code>s with an <code>error</code> field in <code>additional_kwargs</code> if a tool call fails. If that happens, it will go to another node that removes the failed tool messages, and has a better model retry the tool call generation.</p>
+<p>The diagram below shows this visually:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">try</span><span class="p">:</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    <span class="n">display</span><span class="p">(</span><span class="n">Image</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">get_graph</span><span class="p">()</span><span class="o">.</span><span class="n">draw_mermaid_png</span><span class="p">()))</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="c1"># This requires some extra dependencies and is optional</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="k">pass</span>
+</span></code></pre></div>
+<p><img alt="" src="data:image/jpg;base64,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" /></p>
+<p>Let's try it out. To emphasize the removal steps, let's <code>stream</code> the responses from the model so that we can see each executed node:</p>
+<p><div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">stream</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    <span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="s2">&quot;human&quot;</span><span class="p">,</span> <span class="s2">&quot;Write me an incredible haiku about water.&quot;</span><span class="p">)]},</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="p">{</span><span class="s2">&quot;recursion_limit&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="p">)</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">stream</span><span class="p">:</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+</span></code></pre></div>
+<div class="language-output highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="go">{&#39;agent&#39;: {&#39;messages&#39;: [AIMessage(content=[{&#39;text&#39;: &#39;Here is a haiku about water:&#39;, &#39;type&#39;: &#39;text&#39;}, {&#39;id&#39;: &#39;toolu_019mY8NX4t7YkJBWeHG6jE4T&#39;, &#39;input&#39;: {&#39;topic&#39;: [&#39;water&#39;]}, &#39;name&#39;: &#39;master_haiku_generator&#39;, &#39;type&#39;: &#39;tool_use&#39;}], additional_kwargs={}, response_metadata={&#39;id&#39;: &#39;msg_01RmoaLh38DnRX2fv7E8vCFh&#39;, &#39;model&#39;: &#39;claude-3-haiku-20240307&#39;, &#39;stop_reason&#39;: &#39;tool_use&#39;, &#39;stop_sequence&#39;: None, &#39;usage&#39;: {&#39;input_tokens&#39;: 384, &#39;output_tokens&#39;: 67}}, id=&#39;run-a1511215-1a62-49b5-b5b3-b2c8f8c7920e-0&#39;, tool_calls=[{&#39;name&#39;: &#39;master_haiku_generator&#39;, &#39;args&#39;: {&#39;topic&#39;: [&#39;water&#39;]}, &#39;id&#39;: &#39;toolu_019mY8NX4t7YkJBWeHG6jE4T&#39;, &#39;type&#39;: &#39;tool_call&#39;}], usage_metadata={&#39;input_tokens&#39;: 384, &#39;output_tokens&#39;: 67, &#39;total_tokens&#39;: 451})]}}</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="go">{&#39;tools&#39;: {&#39;messages&#39;: [ToolMessage(content=&#39;&#39;, name=&#39;master_haiku_generator&#39;, id=&#39;69f85339-dbc2-4341-8c4d-26300dfe31a5&#39;, tool_call_id=&#39;toolu_019mY8NX4t7YkJBWeHG6jE4T&#39;)]}}</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="go">{&#39;remove_failed_tool_call_attempt&#39;: {&#39;messages&#39;: [RemoveMessage(content=&#39;&#39;, additional_kwargs={}, response_metadata={}, id=&#39;run-a1511215-1a62-49b5-b5b3-b2c8f8c7920e-0&#39;), RemoveMessage(content=&#39;&#39;, additional_kwargs={}, response_metadata={}, id=&#39;69f85339-dbc2-4341-8c4d-26300dfe31a5&#39;)]}}</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="go">{&#39;fallback_agent&#39;: {&#39;messages&#39;: [AIMessage(content=[{&#39;text&#39;: &#39;Certainly! I\&#39;d be happy to help you create an incredible haiku about water. To do this, I\&#39;ll use the master_haiku_generator function, which requires three topics. Since you\&#39;ve specified water as the main theme, I\&#39;ll add two related concepts to create a more vivid and interesting haiku. Let\&#39;s use &quot;water,&quot; &quot;flow,&quot; and &quot;reflection&quot; as our three topics.&#39;, &#39;type&#39;: &#39;text&#39;}, {&#39;id&#39;: &#39;toolu_01FxSxy8LeQ5PjdNYq8vLFTd&#39;, &#39;input&#39;: {&#39;request&#39;: {&#39;topic&#39;: [&#39;water&#39;, &#39;flow&#39;, &#39;reflection&#39;]}}, &#39;name&#39;: &#39;master_haiku_generator&#39;, &#39;type&#39;: &#39;tool_use&#39;}], additional_kwargs={}, response_metadata={&#39;id&#39;: &#39;msg_01U5HV3pt1NVm6syGbxx29no&#39;, &#39;model&#39;: &#39;claude-3-5-sonnet-20240620&#39;, &#39;stop_reason&#39;: &#39;tool_use&#39;, &#39;stop_sequence&#39;: None, &#39;usage&#39;: {&#39;input_tokens&#39;: 414, &#39;output_tokens&#39;: 158}}, id=&#39;run-3eb746c7-b607-4ad3-881a-1c11a7638af7-0&#39;, tool_calls=[{&#39;name&#39;: &#39;master_haiku_generator&#39;, &#39;args&#39;: {&#39;request&#39;: {&#39;topic&#39;: [&#39;water&#39;, &#39;flow&#39;, &#39;reflection&#39;]}}, &#39;id&#39;: &#39;toolu_01FxSxy8LeQ5PjdNYq8vLFTd&#39;, &#39;type&#39;: &#39;tool_call&#39;}], usage_metadata={&#39;input_tokens&#39;: 414, &#39;output_tokens&#39;: 158, &#39;total_tokens&#39;: 572})]}}</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="go">{&#39;tools&#39;: {&#39;messages&#39;: [ToolMessage(content=&#39;&quot;Here is a haiku about water, flow, and reflection:\\n\\nRippling waters flow,\\nMirroring the sky above,\\nTranquil reflection.&quot;&#39;, name=&#39;master_haiku_generator&#39;, id=&#39;fdfc497d-939a-42c0-8748-31371b98a3a7&#39;, tool_call_id=&#39;toolu_01FxSxy8LeQ5PjdNYq8vLFTd&#39;)]}}</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="go">{&#39;agent&#39;: {&#39;messages&#39;: [AIMessage(content=&#39;I hope you enjoy this haiku about the beauty and serenity of water. Please let me know if you would like me to generate another one.&#39;, additional_kwargs={}, response_metadata={&#39;id&#39;: &#39;msg_012rXWHapc8tPfBPEonpAT6W&#39;, &#39;model&#39;: &#39;claude-3-haiku-20240307&#39;, &#39;stop_reason&#39;: &#39;end_turn&#39;, &#39;stop_sequence&#39;: None, &#39;usage&#39;: {&#39;input_tokens&#39;: 587, &#39;output_tokens&#39;: 35}}, id=&#39;run-ab6d412d-9374-4a4b-950d-6dcc43d87cf5-0&#39;, usage_metadata={&#39;input_tokens&#39;: 587, &#39;output_tokens&#39;: 35, &#39;total_tokens&#39;: 622})]}}</span>
+</span></code></pre></div>
+You can see that you get a cleaner response - the more powerful model gets it right on the first try, and the smaller model's failure gets wiped from the graph state. This shorter message history also avoid overpopulating the graph state with attempts.</p>
+<p>You can also inspect this <a href="https://smith.langchain.com/public/7ce6f1fe-48c4-400e-9cbe-1de2da6d2800/r">LangSmith trace</a>, which shows the failed initial call to the smaller model.</p>
+<h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<p>You've now seen how to implement some strategies to handle tool calling errors.</p>
+<p>Next, check out some of the <a href="https://langchain-ai.github.io/langgraph/how-tos/">other LangGraph how-to guides here</a>.</p>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  <form class="md-feedback" name="feedback" hidden>
+    <fieldset>
+      <legend class="md-feedback__title">
+        Was this page helpful?
+      </legend>
+      <div class="md-feedback__inner">
+        <div class="md-feedback__list">
+          
+            <button class="md-feedback__icon md-icon" type="submit" title="This page was helpful" data-md-value="1">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 0-8-8 8 8 0 0 0-8 8 8 8 0 0 0 8 8 8 8 0 0 0 8-8m2 0a10 10 0 0 1-10 10A10 10 0 0 1 2 12 10 10 0 0 1 12 2a10 10 0 0 1 10 10M10 9.5c0 .8-.7 1.5-1.5 1.5S7 10.3 7 9.5 7.7 8 8.5 8s1.5.7 1.5 1.5m7 0c0 .8-.7 1.5-1.5 1.5S14 10.3 14 9.5 14.7 8 15.5 8s1.5.7 1.5 1.5m-5 7.73c-1.75 0-3.29-.73-4.19-1.81L9.23 14c.45.72 1.52 1.23 2.77 1.23s2.32-.51 2.77-1.23l1.42 1.42c-.9 1.08-2.44 1.81-4.19 1.81"/></svg>
+            </button>
+          
+            <button class="md-feedback__icon md-icon" type="submit" title="This page could be improved" data-md-value="0">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 0-8-8 8 8 0 0 0-8 8 8 8 0 0 0 8 8 8 8 0 0 0 8-8m2 0a10 10 0 0 1-10 10A10 10 0 0 1 2 12 10 10 0 0 1 12 2a10 10 0 0 1 10 10m-6.5-4c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5-1.5-.7-1.5-1.5.7-1.5 1.5-1.5M10 9.5c0 .8-.7 1.5-1.5 1.5S7 10.3 7 9.5 7.7 8 8.5 8s1.5.7 1.5 1.5m2 4.5c1.75 0 3.29.72 4.19 1.81l-1.42 1.42C14.32 16.5 13.25 16 12 16s-2.32.5-2.77 1.23l-1.42-1.42C8.71 14.72 10.25 14 12 14"/></svg>
+            </button>
+          
+        </div>
+        <div class="md-feedback__note">
+          
+            <div data-md-value="1" hidden>
+              
+              
+                
+              
+              Thanks for your feedback!
+            </div>
+          
+            <div data-md-value="0" hidden>
+              
+              
+                
+              
+              Thanks for your feedback! Please help us improve this page by adding to the discussion below.
+            </div>
+          
+        </div>
+      </div>
+    </fieldset>
+  </form>
+
+
+  <h2 id="__comments">Comments</h2>
+  <script src="https://giscus.app/client.js"
+        data-repo="langchain-ai/langgraph"
+        data-repo-id="R_kgDOKFU0lQ"
+        data-category="Discussions"
+        data-category-id="DIC_kwDOKFU0lc4CfZgA"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="preferred_color_scheme"
+        data-lang="en"
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async>
+</script>
+
+  <!-- Synchronize Giscus theme with palette -->
+  <script>
+    var giscus = document.querySelector("script[src*=giscus]")
+
+    // Set palette on initial load
+    var palette = __md_get("__palette")
+    if (palette && typeof palette.color === "object") {
+      var theme = palette.color.scheme === "slate"
+        ? "transparent_dark"
+        : "light"
+
+      // Instruct Giscus to set theme
+      giscus.setAttribute("data-theme", theme) 
+    }
+
+    // Register event handlers after documented loaded
+    document.addEventListener("DOMContentLoaded", function() {
+      var ref = document.querySelector("[data-md-component=palette]")
+      ref.addEventListener("change", function() {
+        var palette = __md_get("__palette")
+        if (palette && typeof palette.color === "object") {
+          var theme = palette.color.scheme === "slate"
+            ? "transparent_dark"
+            : "light"
+
+          // Instruct Giscus to change theme
+          var frame = document.querySelector(".giscus-frame")
+          frame.contentWindow.postMessage(
+            { giscus: { setConfig: { theme } } },
+            "https://giscus.app"
+          )
+        }
+      })
+    })
+  </script>
+
+                
+
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../tool-calling/" class="md-footer__link md-footer__link--prev" aria-label="Previous: How to call tools using ToolNode">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                How to call tools using ToolNode
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../pass-run-time-values-to-tools/" class="md-footer__link md-footer__link--next" aria-label="Next: How to pass runtime values to tools">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                How to pass runtime values to tools
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 LangChain, Inc | <a href="#__consent">Consent Preferences</a>
+
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs Insiders
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://langchain-ai.github.io/langgraphjs/" target="_blank" rel="noopener" title="langchain-ai.github.io" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M0 32v448h448V32zm243.8 349.4c0 43.6-25.6 63.5-62.9 63.5-33.7 0-53.2-17.4-63.2-38.5l34.3-20.7c6.6 11.7 12.6 21.6 27.1 21.6 13.8 0 22.6-5.4 22.6-26.5V237.7h42.1zm99.6 63.5c-39.1 0-64.4-18.6-76.7-43l34.3-19.8c9 14.7 20.8 25.6 41.5 25.6 17.4 0 28.6-8.7 28.6-20.8 0-14.4-11.4-19.5-30.7-28l-10.5-4.5c-30.4-12.9-50.5-29.2-50.5-63.5 0-31.6 24.1-55.6 61.6-55.6 26.8 0 46 9.3 59.8 33.7L368 290c-7.2-12.9-15-18-27.1-18-12.3 0-20.1 7.8-20.1 18 0 12.6 7.8 17.7 25.9 25.6l10.5 4.5c35.8 15.3 55.9 31 55.9 66.2 0 37.8-29.8 58.6-69.7 58.6"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/langchain-ai/langgraph" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/LangChainAI" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+  
+    
+  
+
+
+  
+    
+  
+
+
+
+
+  
+
+<h4>Cookie consent</h4>
+<p>We use cookies to recognize your repeated visits and preferences, as well as to measure the effectiveness of our documentation and whether users find what they're searching for. <strong>Clicking "Accept" makes our documentation better. Thank you!</strong> ❤️</p>
+<input class="md-toggle" type="checkbox" id="__settings" checked>
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="github" checked>
+          <span class="task-list-indicator"></span>
+          GitHub
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Accept</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Reject</button>
+    
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout((function(){document.querySelector("[data-md-component=consent]").hidden=!1}),250);var form=document.forms.consent;for(var action of["submit","reset"])form.addEventListener(action,(function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map((function(e){return[e,!0]})))),location.hash="",location.reload()}))</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["announce.dismiss", "content.code.annotate", "content.code.copy", "content.code.select", "content.tabs.link", "content.action.edit", "content.tooltips", "header.autohide", "navigation.indexes", "navigation.expand", "navigation.footer", "navigation.instant", "navigation.sections", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.path", "navigation.prune", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.c7c1ca2c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.203fd0bc.min.js"></script>
+      
+    
+  </body>
+</html>
