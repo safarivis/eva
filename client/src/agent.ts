@@ -1,87 +1,131 @@
-import { DSpy, Module, Predict } from 'dspy.ts';
-import { OnnxInference } from 'dspy.ts/inference';
-
-interface CodingTask {
-    task_id: string;
-    description: string;
-    status: string;
-}
-
-interface CodeSolution {
-    task_id: string;
-    code: string;
-    explanation: string;
-}
+import { Pipeline, BootstrapFewShot, exactMatchMetric } from 'dspy.ts';
+import { CodeGenModule } from './modules/codeGen';
+import { MemoryModule } from './modules/memory';
+import { CodingTask, CodeSolution, AgentConfig } from './types';
 
 @Module({
     description: 'A module for handling coding tasks and generating solutions',
 })
 export class CodingAssistant {
-    private dspy: DSpy;
-    private inference: OnnxInference;
+    private codeGen: CodeGenModule;
+    private memory: MemoryModule;
+    private pipeline: Pipeline;
     private apiBaseUrl: string;
 
-    constructor(apiKey: string, apiBaseUrl: string) {
-        this.dspy = new DSpy({
-            apiKey,
-            temperature: 0.7,
-            maxTokens: 500,
+    constructor(config: AgentConfig) {
+        // Initialize modules
+        this.codeGen = new CodeGenModule({
+            name: 'CodeGenerator',
+            strategy: 'ChainOfThought',
+            optimization: {
+                metric: 'exactMatch',
+                method: 'BootstrapFewShot'
+            }
         });
-        
-        this.inference = new OnnxInference({
-            modelPath: '/models/coding_assistant.onnx',
+
+        this.memory = new MemoryModule({
+            name: 'MemoryManager',
+            strategy: 'ReAct'
         });
-        
-        this.apiBaseUrl = apiBaseUrl;
+
+        // Create pipeline
+        this.pipeline = new Pipeline([
+            this.memory,  // First check memory for similar solutions
+            this.codeGen  // Then generate new solution if needed
+        ]);
+
+        this.apiBaseUrl = config.apiBaseUrl;
     }
 
     @Predict({
-        description: 'Generate initial thoughts about solving a coding task',
-        inputFields: ['task'],
-        outputFields: ['thoughts'],
+        description: 'Create a new coding task',
+        inputFields: ['description'],
+        outputFields: ['task'],
     })
-    async generateThoughts(task: string): Promise<string> {
-        // Use local inference for quick responses
-        const thoughts = await this.inference.predict({
-            prompt: `Given the coding task: "${task}", what are the key considerations and steps needed?`,
-        });
-        return thoughts;
-    }
-
     async createTask(description: string): Promise<CodingTask> {
-        const response = await fetch(`${this.apiBaseUrl}/tasks/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ description }),
+        const task: CodingTask = {
+            task_id: crypto.randomUUID(),
+            description,
+            status: 'pending',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+        };
+
+        // Store task in memory for future reference
+        await this.memory.store({
+            content: description,
+            tags: ['task', 'pending']
         });
-        return response.json();
+
+        return task;
     }
 
+    @Predict({
+        description: 'Solve a coding task',
+        inputFields: ['taskId'],
+        outputFields: ['solution'],
+    })
     async solveTask(taskId: string): Promise<CodeSolution> {
-        // First, generate local thoughts
-        const task = await this.getTask(taskId);
-        const thoughts = await this.generateThoughts(task.description);
+        try {
+            // Get task details
+            const task = await this.getTask(taskId);
+            
+            // Search memory for similar tasks
+            const memories = await this.memory.search({
+                query: task.description,
+                limit: 5,
+                threshold: 0.8
+            });
 
-        // Then, send to server for full solution
-        const response = await fetch(`${this.apiBaseUrl}/tasks/${taskId}/solve`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ initial_thoughts: thoughts }),
-        });
-        return response.json();
+            // Generate solution using pipeline
+            const solution = await this.pipeline.run({
+                description: task.description,
+                context: memories.map(m => m.content),
+                language: this.detectLanguage(task.description)
+            });
+
+            // Format and store solution
+            const codeSolution: CodeSolution = {
+                task_id: taskId,
+                code: solution.code,
+                explanation: solution.explanation,
+                language: this.detectLanguage(solution.code),
+                created_at: new Date().toISOString()
+            };
+
+            // Store solution in memory
+            await this.memory.store({
+                content: solution.code,
+                tags: ['solution', codeSolution.language],
+                metadata: {
+                    task_id: taskId,
+                    confidence: solution.confidence
+                }
+            });
+
+            return codeSolution;
+        } catch (error) {
+            console.error('Error solving task:', error);
+            throw error;
+        }
     }
 
     private async getTask(taskId: string): Promise<CodingTask> {
         const response = await fetch(`${this.apiBaseUrl}/tasks/${taskId}`);
         return response.json();
     }
-}
 
-// Example usage:
-// const assistant = new CodingAssistant('your-api-key', 'http://localhost:8000');
-// const task = await assistant.createTask('Write a function to calculate fibonacci numbers');
-// const solution = await assistant.solveTask(task.task_id);
+    private detectLanguage(text: string): string {
+        // Simple language detection based on common patterns
+        if (text.includes('def ') || text.includes('import ')) return 'python';
+        if (text.includes('function ') || text.includes('const ')) return 'javascript';
+        if (text.includes('class ') && text.includes('{')) return 'typescript';
+        return 'unknown';
+    }
+
+    // Optional: Add methods to optimize the pipeline
+    async optimizePipeline(examples: Array<{ input: string; output: string }>) {
+        const optimizer = new BootstrapFewShot(exactMatchMetric);
+        this.pipeline = await optimizer.compile(this.pipeline, examples);
+    }
+}

@@ -1,27 +1,36 @@
 import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, AsyncMock
 from agent.mem0_memory import Mem0Memory
 from agent.models import MemoryEntry
+from datetime import datetime
 
 @pytest.fixture
 def mock_mem0_client():
-    with patch('mem0.Client') as mock_client:
+    with patch('agent.mem0_memory.AsyncMem0Client') as mock_client:
         # Create a mock instance
-        mock_instance = Mock()
+        mock_instance = AsyncMock()
         mock_client.return_value = mock_instance
         
         # Setup mock responses
-        mock_instance.create_memory.return_value = {
-            'id': 'test-id-123',
-            'content': 'test content',
-            'metadata': {'tags': ['test']}
-        }
+        mock_instance.create_memory.return_value = Mock(
+            id='test-id-123',
+            content={'data': 'test content'},
+            tags=['test'],
+            metadata={
+                'timestamp': '2025-03-03T08:56:44+02:00',
+                'key': 'test-key'
+            }
+        )
         
-        mock_instance.search.return_value = [{
-            'id': 'test-id-123',
-            'content': 'test content',
-            'metadata': {'tags': ['test']}
-        }]
+        mock_instance.search_memories.return_value = [Mock(
+            id='test-id-123',
+            content={'data': 'test content'},
+            tags=['test'],
+            metadata={
+                'timestamp': '2025-03-03T08:56:44+02:00',
+                'key': 'test-key'
+            }
+        )]
         
         yield mock_instance
 
@@ -30,47 +39,40 @@ def memory_client(mock_mem0_client):
     return Mem0Memory()
 
 @pytest.mark.asyncio
-async def test_add_memory(memory_client, mock_mem0_client):
-    memory = await memory_client.add_memory(
-        content='test content',
-        metadata={'tags': ['test']}
+async def test_store_memory(memory_client, mock_mem0_client):
+    entry = MemoryEntry(
+        key='test-key',
+        content={'data': 'test content'},
+        tags=['test'],
+        timestamp=datetime.fromisoformat('2025-03-03T08:56:44+02:00')
     )
     
-    assert isinstance(memory, MemoryEntry)
-    assert memory.key == 'test-id-123'
-    assert memory.content['data'] == 'test content'
-    assert memory.tags == ['test']
+    memory_id = await memory_client.store(entry)
+    
+    assert memory_id == 'test-id-123'
     
     # Verify the mock was called correctly
-    mock_mem0_client.create_memory.assert_called_once_with(
-        content='test content',
-        metadata={'tags': ['test']}
+    mock_mem0_client.create_memory.assert_awaited_once_with(
+        content={'data': 'test content'},
+        tags=['test'],
+        metadata={
+            'timestamp': '2025-03-03T08:56:44+02:00',
+            'key': 'test-key'
+        }
     )
 
 @pytest.mark.asyncio
-async def test_search_memories(memory_client, mock_mem0_client):
-    results = await memory_client.search_memories('test query', limit=5)
+async def test_retrieve_memories(memory_client, mock_mem0_client):
+    memories = await memory_client.retrieve('test query')
     
-    assert len(results) > 0
-    assert isinstance(results[0], MemoryEntry)
-    assert results[0].key == 'test-id-123'
+    assert len(memories) == 1
+    assert isinstance(memories[0], MemoryEntry)
+    assert memories[0].key == 'test-key'
+    assert memories[0].content == {'data': 'test content'}
+    assert memories[0].tags == ['test']
     
-    # Verify the mock was called correctly
-    mock_mem0_client.search.assert_called_once_with('test query', limit=5)
-
-@pytest.mark.asyncio
-async def test_get_recent_memories(memory_client, mock_mem0_client):
-    mock_mem0_client.list_memories.return_value = [{
-        'id': f'test-id-{i}',
-        'content': f'test content {i}',
-        'metadata': {'tags': ['test']}
-    } for i in range(3)]
-    
-    results = await memory_client.get_recent_memories(n=3)
-    
-    assert len(results) == 3
-    assert all(isinstance(r, MemoryEntry) for r in results)
-    assert [r.key for r in results] == ['test-id-0', 'test-id-1', 'test-id-2']
-    
-    # Verify the mock was called correctly
-    mock_mem0_client.list_memories.assert_called_once_with(limit=3)
+    mock_mem0_client.search_memories.assert_awaited_once_with(
+        query='test query',
+        limit=5,
+        include_metadata=True
+    )

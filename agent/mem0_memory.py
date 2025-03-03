@@ -4,7 +4,7 @@ import aiohttp
 import json
 from .models import MemoryEntry
 from .config import settings
-from mem0 import AsyncMem0Client
+from mem0 import AsyncMemoryClient as AsyncMem0Client
 
 class Mem0Memory:
     def __init__(self):

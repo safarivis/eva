@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
 from enum import Enum
 
@@ -24,8 +24,6 @@ class Settings(BaseSettings):
     MAX_RETRIES: int = 3
     MAX_REACT_STEPS: int = 6
     
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
+    model_config = SettingsConfigDict(env_file=".env", case_sensitive=True, env_file_encoding='utf-8')
 
 settings = Settings()
